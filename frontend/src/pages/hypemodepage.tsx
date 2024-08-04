@@ -227,7 +227,7 @@ const HypeModeProfile = () => {
 
   const onLoginFailure = (error: any) => {
     console.error('Google login failed:', error);
-    setPopupMessage('Google login failed. Please try again.');
+    setPopupMessage('Google login failed. Please try again..');
     setShowPopup(true);
   };
   const handleGoogleLogin = async () => {
