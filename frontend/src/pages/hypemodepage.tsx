@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { getAuth, signInWithPopup, signOut } from "firebase/auth";
 import { googleProvider } from "./firebase"; // Import your Firebase configuration
+import { displayName } from "react-quill";
 
 const MainContainer = styled.div`
   display: flex;
@@ -155,16 +156,16 @@ const HypeModeProfile = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       // Extract user info
-      const { uid, displayName, email, photoURL } = user;
+      const { uid, displayName , email, photoURL } = user;
 
       const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId: uid } });
 
       if (isSignup) {
         // Register user with your backend
-        await registerUser(displayName, email, photoURL, password, callback);
+        await registerUser(displayName || 'name', email || 'email', photoURL|| 'email', password, callback);
       } else {
         // Login user with your backend
-        await loginUser(email, password, callback);
+        await loginUser(email || 'email', password, callback);
       }
     } catch (error) {
       console.error('Google login failed:', error);
@@ -299,7 +300,7 @@ const HypeModeProfile = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button onClick={() => (isSignup ? registerUser(email, password, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } })) : loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } })))}>
+                <Button onClick={() => (isSignup ? registerUser(email, password, password, displayName, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } })) : loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } })))}>
                   {isSignup ? 'Register' : 'Login'}
                 </Button>
               </SubscriptionBox>
