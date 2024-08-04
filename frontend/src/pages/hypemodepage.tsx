@@ -1,93 +1,89 @@
-import { useState } from "react";
-import styled from 'styled-components';
-import { Layout } from "../components";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
-
+import styled from 'styled-components';
+import { GoogleLogin, GoogleLogout } from 'react-google-login';
+import { Layout } from "../components";
 import { useNavigate } from 'react-router-dom';
-import { getAuth, signInWithPopup, signOut } from "firebase/auth";
-import { googleProvider } from "./firebase"; // Import your Firebase configuration
-import { displayName } from "react-quill";
+import { gapi } from "gapi-script";
+import { decodeToken } from "../utilities/helperfFunction";
 
 const MainContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  height: 80vh;
   background: linear-gradient(to right, #ffffa1 0%, #ffc800 100%);
   justify-content: center;
   align-items: center;
-  padding: 20px;
-
-  @media (max-width: 768px) {
-    padding: 10px;
-    justify-content: flex-start;
-  }
+`;
+const ListItem = styled.li`
+  margin-top: 10px; // Adjust the value as needed
 `;
 
-const RightContainer = styled.div`
+const LeftContainer = styled.div`
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
-  width: 100%;
+  padding: 50px;
+  background: linear-gradient(to right, #ffffa1 0%, #ffc800 100%);
+  color: #333;
+`;
 
-  @media (max-width: 768px) {
-    margin-bottom: 10px;
-  }
+const RightContainer = styled.div`
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+const InfoText = styled.div`
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: left;
 `;
 
 const SubscriptionContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: left;
+  align-items: left;
+  width: 900px;
+`;
+const SubscriptionContainers = styled.div`
+  display: flex;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  
-  @media (min-width: 768px) {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
+  width: 1500px;
 `;
 
+
 const SubscriptionBox = styled.div`
-  padding: 15px;
+    padding: 20px;
   border: 2px dashed #000;
   text-align: center;
-  width: 90%;
-  margin: 10px 0;
+  width: 300px;
+  margin: 0 20px;
   background-color: #fff;
-  
-  @media (min-width: 768px) {
-    width: 270px;
-    margin: 10px;
-  }
 `;
 
 const Title = styled.h2`
   margin-bottom: 10px;
   color: #000;
-  font-size: 18px;
-
-  @media (max-width: 768px) {
-    font-size: 16px;
-  }
 `;
 
 const Description = styled.p`
-  font-size: 14px;
-  margin-bottom: 15px;
+  font-size: 16px;
+  margin-bottom: 20px;
   color: #000;
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
 `;
 
 const Button = styled.button`
   background: #000;
   color: #fff;
   border: none;
-  padding: 10px 15px;
+  padding: 10px 20px;
   cursor: pointer;
   transition: background 0.3s;
 
@@ -97,22 +93,24 @@ const Button = styled.button`
 `;
 
 const ToggleButton = styled.button`
+  background: #fff;
   color: #000;
   border: 2px solid #000;
-  padding: 8px 15px;
-  margin-bottom: 30px;
+  padding: 10px 20px;
+  margin-top: 100px;
   cursor: pointer;
   transition: background 0.3s;
 
   &:hover {
     background: #f0f0f0;
   }
-
-  @media (max-width: 768px) {
-    padding: 6px 10px;
-    margin-top: 80px;
-    font-size: 14px;
-  }
+`;
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align items to the top */
+  height: 100vh; /* Full height of the viewport */
+  padding-top: 20px; /* Add some padding from the top */
 `;
 
 const Popup = styled.div`
@@ -120,12 +118,10 @@ const Popup = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 15px;
+  padding: 20px;
   background: #fff;
   border: 2px solid #000;
   z-index: 1000;
-  max-width: 90%;
-  box-sizing: border-box;
 `;
 
 const Overlay = styled.div`
@@ -148,110 +144,120 @@ const HypeModeProfile = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
+  const token = localStorage.getItem("token") || null;
+  const tokenData = decodeToken(token);
 
-  const auth = getAuth();
-
-  const handleGoogleLogin = async () => {
+  console.log(tokenData);
+  const fetchBirthday = async (token:any) => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      // Extract user info
-      const { uid, displayName , email, photoURL } = user;
-
-      const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId: uid } });
-
-      if (isSignup) {
-        // Register user with your backend
-        await registerUser(displayName || 'name', email || 'email', photoURL|| 'email', password, callback);
-      } else {
-        // Login user with your backend
-        await loginUser(email || 'email', password, callback);
-      }
+      const res = await axios.get('https://people.googleapis.com/v1/people/me?personFields=birthdays', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const birthday = res.data.birthdays?.[0]?.date;
+      return birthday ? `${birthday.year}-${birthday.month}-${birthday.day}` : '';
     } catch (error) {
-      console.error('Google login failed:', error);
-      setPopupMessage('Google login failed. Please try again.');
-      setShowPopup(true);
+      console.error('Error fetching birthday:', error);
+      return '';
     }
   };
 
-  const handleGoogleLogout = async () => {
+  const registerUser = async (username:any, email:any, avatar:any, dob:any, password:any, callback:any) => {
     try {
-      await signOut(auth);
-      setIsLoggedIn(false);
-      setPopupMessage('Logout successful.');
-      setShowPopup(true);
-    } catch (error: any) {
-      console.error('Logout failed:', error);
-      setPopupMessage('Logout failed. Please try again.');
-      setShowPopup(true);
-    }
-  };
-
-  const registerUser = async (username: string, email: string, avatar: string, password: string, callback: () => void) => {
-    try {
-      const res = await axios.post('https://wecinema.onrender.com/user/register', {
+      const res = await axios.post('http://localhost:3000/user/register', {
         username,
         email,
         avatar,
-        dob: "20192020",
+        dob,
         password
       });
 
-      const token = res.data.token;
-      const userId = res.data.id;
-
+      console.log('User registered successfully:', res.data);
+      const token = tokenData;
+      const userId = token.userid; // Assuming userId is returned from 
+      
       if (token) {
-        localStorage.setItem('token', token);
-        setPopupMessage('Registration successful and logged in!');
         setIsLoggedIn(true);
-        setUserId(userId);
+        setUserId(userId); // Set userId state
+        setPopupMessage('Registration successful and logged in!');
         setShowPopup(true);
-        if (callback) callback();
+        if (callback) callback(userId);
       }
-    } catch (error: any) {
-      if (error.response && error.response.data && error.response.data.error === 'Email already exists..') {
+    } catch (error:any) {
+      if (error.response && error.response.data && error.response.data.error === 'Email already exists') {
         setPopupMessage('Email already exists.');
       } else {
-        setPopupMessage('Registration failed.');
+        setPopupMessage('Registration successful Go back to Signin.');
       }
       setShowPopup(true);
     }
   };
 
-  const loginUser = async (email: string, password: string, callback: () => void) => {
+  const loginUser = async (email:any, password:any, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema.onrender.com/user/login', {
-        email,
-        password,
-      });
-  
+      const res = await axios.post('http://localhost:3000/user/login', { email, password });
       const token = res.data.token;
-      const userId = res.data.id;
-  
+      const userId = res.data.id; // Assuming userId is returned from backend
       if (token) {
         localStorage.setItem('token', token);
         setIsLoggedIn(true);
-        setUserId(userId);
-        setPopupMessage('Login successful..!');
+        setUserId(userId); // Set userId state
+        setPopupMessage('Login successful!');
         setShowPopup(true);
         if (callback) callback();
       }
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      if (error.response) {
-        setPopupMessage(error.response.data.message || 'Login failed.');
-      } else {
-        setPopupMessage('Login failed.');
-      }
+    } catch (error) {
+      setPopupMessage('Login failed.');
       setShowPopup(true);
     }
   };
+
+  const onLoginSuccess = async (response:any) => {
+    console.log('Login Success:', response.profileObj);
+
+    const { email, name: username, imageUrl: avatar } = response.profileObj;
+    const token = response.tokenObj.access_token;
+
+    const dob = await fetchBirthday(token);
+    const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+
+    if (isSignup) {
+      await registerUser(username, email, avatar, dob, password, callback);
+    } else {
+      await loginUser(email, password, callback);
+    }
+  };
+
+  const onLoginFailure = (response:any) => {
+    console.error('Login Failed:', response);
+  };
+
+  const onLogoutSuccess = () => {
+    console.log('Logout successful');
+    localStorage.clear();
+    setIsLoggedIn(false);
+    navigate('/hypemode');
+  };
+
+  const clientId = "854144808645-t4jd10ehpngjnfvki8mcuq7q0uvr2kjo.apps.googleusercontent.com";
+
+  useEffect(() => {
+    function start() {
+      gapi.client.init({
+        clientId: clientId,
+        scope: 'email https://www.googleapis.com/auth/user.birthday.read',
+      });
+    }
+
+    gapi.load('client:auth2', start);
+  }, []);
 
   const closePopup = () => {
     setShowPopup(false);
   };
 
-  const handleSubscriptionClick = (subscriptionType: string) => {
+  const handleSubscriptionClick = async (subscriptionType:any) => {
     setSelectedSubscription(subscriptionType);
     if (isLoggedIn) {
       const amount = subscriptionType === 'user' ? 5 : subscriptionType === 'studio' ? 10 : 0;
@@ -264,31 +270,63 @@ const HypeModeProfile = () => {
   };
 
   return (
-    <Layout expand={false} hasHeader={false}>
+    <Layout  expand={false} hasHeader={false}>
+      <ToggleButton onClick={toggleSignupSignin}>
+                {isSignup ? "Already have account ? Switch to Sign in" : "Don't have account? Switch to Sign up"}
+              </ToggleButton>
       <MainContainer>
-        <ToggleButton onClick={toggleSignupSignin}>
-          {isSignup ? "Already have an account? Switch to Sign in" : "Don't have an account? Switch to Sign up"}
-        </ToggleButton>
-
+        
+      
+        {/* <LeftContainer>
+          <InfoText>
+            Success starts here
+            <ul>
+              <ListItem>The hypemode for our premium users</ListItem>
+              <ListItem>To sell and buy scripts</ListItem>
+              <ListItem>Access to new early advance features</ListItem>
+            </ul>
+          </InfoText>
+        </LeftContainer> */}
         <RightContainer>
           {isLoggedIn ? (
             <SubscriptionContainer>
               <SubscriptionBox>
                 <Title>Logout</Title>
-                <Button onClick={handleGoogleLogout}>Logout</Button>
+                <GoogleLogout
+                  clientId={clientId}
+                  buttonText="Logout"
+                  onLogoutSuccess={onLogoutSuccess}
+                />
               </SubscriptionBox>
+              
             </SubscriptionContainer>
           ) : (
+            
             <SubscriptionContainer>
+             
               <SubscriptionBox onClick={() => handleSubscriptionClick('user')}>
                 <Title>User Subscription</Title>
                 <Description>$5 a month to buy and sell films and scripts</Description>
-                <Button onClick={handleGoogleLogin}>{isSignup ? "Sign up with Google" : "Sign in with Google"}</Button>
+                <GoogleLogin
+                  clientId={clientId}
+                  buttonText={isSignup ? "Sign up with Google" : "Sign in with Google"}
+                  onSuccess={onLoginSuccess}
+                  onFailure={onLoginFailure}
+                  cookiePolicy={'single_host_origin'}
+                  scope="email profile https://www.googleapis.com/auth/user.birthday.read"
+                />
               </SubscriptionBox>
               <SubscriptionBox onClick={() => handleSubscriptionClick('studio')}>
                 <Title>Studio Subscription</Title>
                 <Description>$10 a month to buy and sell, get early access to new features</Description>
-                <Button onClick={handleGoogleLogin}>{isSignup ? "Sign up with Google" : "Sign in with Google"}</Button>
+                <GoogleLogin
+                  clientId={clientId}
+                  buttonText={isSignup ? "Sign up with Google" : "Sign in with Google"}
+                  onSuccess={onLoginSuccess}
+                  onFailure={onLoginFailure}
+                  cookiePolicy={'single_host_origin'}
+                  scope="email profile https://www.googleapis.com/auth/user.birthday.read"
+                />
               </SubscriptionBox>
               <SubscriptionBox>
                 <h3>{isSignup ? 'Register' : 'Login'} with Email</h3>
@@ -304,7 +342,7 @@ const HypeModeProfile = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button onClick={() => (isSignup ? registerUser(email, password, password, displayName, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } })) : loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } })))}>
+                <Button onClick={() => loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } }))}>
                   {isSignup ? 'Register' : 'Login'}
                 </Button>
               </SubscriptionBox>
