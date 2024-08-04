@@ -1,8 +1,8 @@
 import { useState } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import { Layout } from "../components";
-import { useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { getAuth, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { googleProvider } from "./firebase";
 
 const MainContainer = styled.div`
@@ -148,50 +148,51 @@ const HypeModeProfile = () => {
 
   const auth = getAuth();
 
-  const registerUser = async (email: string, password: string, callback: () => void) => {
+  const registerUser = async (email:any, password:any) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      setPopupMessage('Registration successful and logged in!');
-      setIsLoggedIn(true);
       setUserId(user.uid);
+      setIsLoggedIn(true);
+      setPopupMessage('Registration successful!');
       setShowPopup(true);
-      if (callback) callback();
-    } catch (error: any) {
+      navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId: user.uid } });
+    } catch (error:any) {
       console.error('Registration failed:', error);
-      setPopupMessage('Registration failed. Please try again.');
+      setPopupMessage(error.message);
       setShowPopup(true);
     }
   };
 
-  const loginUser = async (email: string, password: string, callback: () => void) => {
+  const loginUser = async (email:any, password:any) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      setIsLoggedIn(true);
       setUserId(user.uid);
+      setIsLoggedIn(true);
       setPopupMessage('Login successful!');
       setShowPopup(true);
-      if (callback) callback();
-    } catch (error: any) {
+      navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId: user.uid } });
+    } catch (error:any) {
       console.error('Login failed:', error);
-      setPopupMessage('Login failed. Please try again.');
+      setPopupMessage(error.message);
       setShowPopup(true);
     }
   };
 
-  const onLoginSuccess = async (user: any) => {
+  const onLoginSuccess = async (user:any) => {
     const profile = user.providerData[0];
     const email = profile.email;
-    const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+    navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+
     if (isSignup) {
-      await registerUser(email, password, callback);
+      await registerUser(email, password );
     } else {
-      await loginUser(email, password, callback);
+      await loginUser(email, password);
     }
   };
 
-  const onLoginFailure = (error: any) => {
+  const onLoginFailure = (error:any) => {
     console.error('Google login failed:', error);
     setPopupMessage('Google login failed. Please try again.');
     setShowPopup(true);
@@ -213,7 +214,7 @@ const HypeModeProfile = () => {
       setIsLoggedIn(false);
       setPopupMessage('Logout successful.');
       setShowPopup(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Logout failed:', error);
       setPopupMessage('Logout failed. Please try again.');
       setShowPopup(true);
@@ -224,7 +225,7 @@ const HypeModeProfile = () => {
     setShowPopup(false);
   };
 
-  const handleSubscriptionClick = (subscriptionType: string) => {
+  const handleSubscriptionClick = (subscriptionType:any) => {
     setSelectedSubscription(subscriptionType);
     if (isLoggedIn) {
       const amount = subscriptionType === 'user' ? 5 : subscriptionType === 'studio' ? 10 : 0;
@@ -277,7 +278,7 @@ const HypeModeProfile = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button onClick={() => loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } }))}>
+                <Button onClick={() => isSignup ? registerUser(email, password) : loginUser(email, password)}>
                   {isSignup ? 'Register' : 'Login'}
                 </Button>
               </SubscriptionBox>
@@ -299,6 +300,3 @@ const HypeModeProfile = () => {
 };
 
 export default HypeModeProfile;
-
-
-
