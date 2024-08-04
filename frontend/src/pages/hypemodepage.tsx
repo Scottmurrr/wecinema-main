@@ -250,7 +250,7 @@ const HypeModeProfile = () => {
       setShowPopup(true);
     } catch (error: any) {
       console.error('Logout failed:', error);
-      setPopupMessage('Logout failed. Please try again.');
+      setPopupMessage('Logout failed. Please try again...');
       setShowPopup(true);
     }
   };
