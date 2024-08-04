@@ -3,9 +3,10 @@ import { useLocation } from 'react-router-dom';
 import { Layout } from "../components";
 import styled from 'styled-components';
 import axios from 'axios';
+import { decodeToken } from "../utilities/helperfFunction";
+import { getRequest } from "../api"; // Assuming getRequest is used for fetching data
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getAuth } from 'firebase/auth';
 import PayPalButtonWrapper from './PayPalButtonWrapper'; // Import updated PayPalButtonWrapper
 
 const Container = styled.div`
@@ -104,66 +105,74 @@ const PaymentComponent = () => {
   const [popupMessage, setPopupMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [userHasPaid, setUserHasPaid] = useState(false);
-  const [setUser] = useState<any>(null);
+  const [setLoading] = useState<any>({});
+  const [setUser] = useState<any>({});
+
+  // Extract data from token
+  const token = localStorage.getItem("token") || null;
+  let userId = null;
+  let username = null;
+
+  if (token) {
+    const tokenData = decodeToken(token);
+    console.log('Token Data:', tokenData);
+
+    userId = tokenData.userId;
+    username = tokenData.username;
+
+    console.log("User ID:", userId);
+    console.log("Username:", username);
+  }
 
   useEffect(() => {
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
-    if (currentUser) {
-      const userId = currentUser.uid;
-
-      const fetchData = async () => {
-        try {
-          const result = await axios.get(`/user/${userId}`);
-          setUser(result.data);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      }
-
-      const checkUserPaymentStatus = async () => {
-        try {
-          const response = await axios.get(`https://wecinema.onrender.com/user/payment-status/${userId}`);
-          const { hasPaid, lastPaymentDate } = response.data;
-
-          // Check if the subscription has expired
-          const today:any = new Date();
-          const lastPayment:any = new Date(lastPaymentDate);
-          const diffTime = Math.abs(today - lastPayment);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-          if (diffDays > 30) {
-            // Subscription expired
-            setUserHasPaid(false);
-            await axios.post(`https://wecinema.onrender.com/user/update-payment-status`, { userId, hasPaid: false });
-            setPopupMessage('Your subscription has expired. Please renew to continue.');
-            setIsError(true);
-            setShowPopup(true);
-          } else {
-            setUserHasPaid(hasPaid);
-          }
-        } catch (error) {
-          console.error('Error fetching user payment status:', error);
-        }
-      };
-
-      fetchData();
-      checkUserPaymentStatus();
+    if (!userId) {
+      console.error('User ID is not defined.');
+      return;
     }
-  }, []);
+
+    const fetchData = async () => {
+      try {
+        const result = await getRequest("/user/" + userId, setLoading);
+        console.log('Fetched user data:', result);
+        setUser(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+
+    const checkUserPaymentStatus = async () => {
+      try {
+        const response = await axios.get(`https://wecinema.onrender.com/user/payment-status/${userId}`);
+        const { hasPaid, lastPaymentDate } = response.data;
+
+        // Check if the subscription has expired
+        const today:any = new Date();
+        const lastPayment:any = new Date(lastPaymentDate);
+        const diffTime = Math.abs(today - lastPayment);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 30) {
+          // Subscription expired
+          setUserHasPaid(false);
+          await axios.post(`https://wecinema.onrender.com/user/update-payment-status`, { userId, hasPaid: false });
+          setPopupMessage('Your subscription has expired. Please renew to continue.');
+          setIsError(true);
+          setShowPopup(true);
+        } else {
+          setUserHasPaid(hasPaid);
+        }
+      } catch (error) {
+        console.error('Error fetching user payment status:', error);
+      }
+    };
+
+    checkUserPaymentStatus();
+  }, [userId]);
 
   const handlePaymentSuccess = async (details:any) => {
     try {
-      const auth = getAuth();
-      const currentUser = auth.currentUser;
-      if (!currentUser) {
-        throw new Error('User is not authenticated.');
-      }
-
-      const userId = currentUser.uid;
-      const username = currentUser.displayName || "User";
-      
       console.log('Payment details:', details);
       
       if (!details.id || !details.payer) {
@@ -171,8 +180,8 @@ const PaymentComponent = () => {
       }
 
       const response = await axios.post('https://wecinema.onrender.com/user/save-transaction', {
-        userId,
-        username,
+        userId: userId,
+        username: username,
         email: details.payer.email_address,
         orderId: details.id,
         payerId: details.payer.payer_id,
@@ -209,9 +218,10 @@ const PaymentComponent = () => {
               <div>
                 <Title>Proceed to Payment</Title>
                 <Description>Your subscription type: {subscriptionType}</Description>
+                <Description>UserID: {userId}</Description>
                 <Description>Amount: ${amount}</Description>
                 <Description>Pay with PayPal or Debit Card</Description>
-                <PayPalButtonWrapper amount={amount} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />
+                <PayPalButtonWrapper amount={amount} userId={userId} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />
               </div>
             </SubscriptionBox>
             {showPopup && <TransactionPopup message={popupMessage} onClose={() => setShowPopup(false)} isError={isError} />}
