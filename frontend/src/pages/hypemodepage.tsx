@@ -224,21 +224,25 @@ const HypeModeProfile = () => {
         email,
         password,
       });
-
+  
       const token = res.data.token;
       const userId = res.data.id;
-
+  
       if (token) {
         localStorage.setItem('token', token);
         setIsLoggedIn(true);
         setUserId(userId);
-        setPopupMessage('Login successful!');
+        setPopupMessage('Login successful..!');
         setShowPopup(true);
         if (callback) callback();
       }
     } catch (error: any) {
       console.error('Login failed:', error);
-      setPopupMessage(error.response?.data?.message || 'Login failed.');
+      if (error.response) {
+        setPopupMessage(error.response.data.message || 'Login failed.');
+      } else {
+        setPopupMessage('Login failed.');
+      }
       setShowPopup(true);
     }
   };

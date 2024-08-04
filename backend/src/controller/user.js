@@ -10,6 +10,8 @@ const Contact = require("../models/contact");
 const Subscription  = require("../models/subscription");
 const Transaction = require("../models/transaction"); 
 const admin = require('firebase-admin');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const serviceAccount = require('../../serviceAccountKey.json');
 
@@ -60,10 +62,7 @@ router.post("/register", async (req, res) => {
 		}
 
 		// Hash the password using bcrypt
-		const hashedPassword = !password
-			? await argon2.hash("wecinema")
-			: await argon2.hash(password);
-
+		const hashedPassword = await bcrypt.hash(password, saltRounds);
 		// Create a new user
 		const newUser = await User.create({
 			username,
@@ -82,41 +81,30 @@ router.post("/register", async (req, res) => {
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 });
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
 	try {
 	  const { email, password } = req.body;
-	  console.log('Received email:', email);
-	  console.log('Received password:', password);
-  
-	  // Find the user by email
 	  const user = await User.findOne({ email });
   
-	  // Check if the user exists
 	  if (!user) {
-		return res.status(401).json({ error: "Invalid credentials." });
+		return res.status(401).json({ message: 'Invalid email or password' });
 	  }
   
-	  // Compare the provided password with the hashed password in the database
-	  const passwordMatch = await argon2.verify(user.password, password);
+	  const isMatch = await bcrypt.compare(password, user.password);
   
-	  if (passwordMatch) {
-		// If the passwords match, generate a JWT token for authentication
-		const token = jwt.sign(
-		  { userId: user._id, username: user.username, avatar: user.avatar },
-		  process.env.SECRET_KEY,
-		  { expiresIn: "8h" }
-		);
-  
-		res.status(200).json({ token });
-	  } else {
-		// If passwords do not match, return an error
-		res.status(401).json({ error: "Invalid credentials" });
+	  if (!isMatch) {
+		return res.status(401).json({ message: 'Invalid email or password' });
 	  }
+  
+	  // Generate token
+	  const token = jwt.sign({ id: user._id }, 'your_jwt_secret');
+	  res.json({ token, id: user._id });
+  
 	} catch (error) {
-	  console.error("Error during login:", error);
-	  res.status(500).json({ error: "Internal Server Error" });
+	  res.status(500).json({ message: 'Server error' });
 	}
   });
+  
   
   
 
