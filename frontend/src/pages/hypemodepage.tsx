@@ -150,14 +150,14 @@ const HypeModeProfile = () => {
 
  
 
-  const registerUser = async (username: string, email: string, avatar: string,  password: string, callback: () => void) => {
+  const registerUser = async (username: string, email: string, avatar: string, callback: () => void) => {
     try {
       const res = await axios.post('https://wecinema.onrender.com/user/register', {
         username,
         email,
         avatar,
         dob:"20192020",
-        password
+        
       });
 
       const token = res.data.token;
@@ -180,11 +180,11 @@ const HypeModeProfile = () => {
     }
   };
 
-  const loginUser = async (email: string, password: string, callback: () => void) => {
+  const loginUser = async (email: string, callback: () => void) => {
     try {
       const res = await axios.post('https://wecinema.onrender.com/user/login', {
         email,
-        password,
+        
       });
 
       const token = res.data.token;
@@ -218,9 +218,9 @@ const HypeModeProfile = () => {
     const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
   
     if (isSignup) {
-      await registerUser(username, email, avatar, password, callback);
+      await registerUser(username, email, avatar, callback);
     } else {
-      await loginUser(email, password, callback);
+      await loginUser(email, callback);
     }
   };
   
@@ -314,7 +314,7 @@ const HypeModeProfile = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button onClick={() => loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } }))}>
+                <Button onClick={() => loginUser(email, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } }))}>
                   {isSignup ? 'Register' : 'Login'}
                 </Button>
               </SubscriptionBox>
