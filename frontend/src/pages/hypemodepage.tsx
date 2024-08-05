@@ -220,7 +220,7 @@ const HypeModeProfile = () => {
         await loginUser(token, callback);
       }
     } catch (error) {
-      console.error('Failed to get Firebase token:', error);
+      console.error('Failed to get Firebase token.:', error);
       setPopupMessage('Failed to get Firebase token.. Please try again.');
       setShowPopup(true);
     }
