@@ -20,11 +20,6 @@ admin.initializeApp({
 const db = admin.database();
 
 
-// PayPal credentials
-const PAYPAL_CLIENT_ID = 'ATCFEkRI4lCXYSceFX1O3WVIym-HN0raTtEpXUUH8hTDI5kmPbbaWqI6I0K6nLRap16jZJoO33HtcFy7';
-const PAYPAL_SECRET = 'EIom_qzr0MhKHqPqFfhl6hqaTZFBg6n4AENu_8i8Bgsx86cQ9q0bWIIb235hLwdaDKPdG-i7qYUHpf5L';
-
-
 
 const { authenticateMiddleware, isAdmin } = require("../utils");
 router.post("/contact", async (req, res) => {
@@ -118,7 +113,7 @@ router.post("/login", async (req, res) => {
 	}
   });
   
-  router.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
 	const { username, email, avatar, dob } = req.body;
   
 	try {
@@ -144,9 +139,8 @@ router.post("/login", async (req, res) => {
 	  }
 	}
   });
-  
-  router.post('/signin', async (req, res) => {
-	const { email, password } = req.body;
+router.post('/signin', async (req, res) => {
+	const { email } = req.body;
   
 	try {
 	  const user = await auth.getUserByEmail(email);

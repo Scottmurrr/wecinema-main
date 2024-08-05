@@ -199,7 +199,7 @@ const HypeModeProfile = () => {
         if (callback) callback();
       }
     } catch (error:any) {
-      console.error('Login failed:', error);
+      console.error('Login failed.:', error);
       if (error.response) {
         setPopupMessage(error.response.data.message || 'Login failed.');
       } else {
