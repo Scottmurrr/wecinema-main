@@ -113,7 +113,7 @@ router.post("/login", async (req, res) => {
 	}
   });
   
-router.post('/signup', async (req, res) => {
+router.post("/signup", async (req, res) => {
 	const { username, email, avatar, dob } = req.body;
   
 	try {
@@ -139,7 +139,8 @@ router.post('/signup', async (req, res) => {
 	  }
 	}
   });
-router.post('/signin', async (req, res) => {
+
+router.post("/signin", async (req, res) => {
 	const { email } = req.body;
   
 	try {
