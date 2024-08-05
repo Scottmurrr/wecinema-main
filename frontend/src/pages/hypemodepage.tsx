@@ -178,15 +178,15 @@ const HypeModeProfile = () => {
     }
   };
 
-  const loginUser = async (email:string, callback:any) => {
+  const loginUser = async (token:any, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema.onrender.com/user/login', { email });
+      const res = await axios.post('https://wecinema.onrender.com/user/login', { token });
 
-      const token = res.data.token;
+      const backendToken = res.data.token;
       const userId = res.data.id;
 
-      if (token) {
-        localStorage.setItem('token', token);
+      if (backendToken) {
+        localStorage.setItem('token', backendToken);
         setIsLoggedIn(true);
         setUserId(userId);
         setPopupMessage('Login successful!');
@@ -210,19 +210,20 @@ const HypeModeProfile = () => {
     const username = profile.displayName;
     const avatar = profile.photoURL;
 
-    const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+    try {
+      const token = await user.getIdToken();
+      const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
 
-    if (isSignup) {
-      await registerUser(username, email, avatar, callback);
-    } else {
-      await loginUser(email, callback);
+      if (isSignup) {
+        await registerUser(username, email, avatar, callback);
+      } else {
+        await loginUser(token, callback);
+      }
+    } catch (error) {
+      console.error('Failed to get Firebase token:', error);
+      setPopupMessage('Failed to get Firebase token. Please try again.');
+      setShowPopup(true);
     }
-  };
-
-  const onLoginFailure = (error:any) => {
-    console.error('Google login failed:', error);
-    setPopupMessage('Google login failed. Please try again.');
-    setShowPopup(true);
   };
 
   const handleGoogleLogin = async () => {
