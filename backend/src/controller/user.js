@@ -44,72 +44,49 @@ router.post("/contact", async (req, res) => {
 
 // Route for creating a user account
 router.post("/register", async (req, res) => {
+	const { username, email, avatar, dob } = req.body;
+  
 	try {
-		const { username, email, password, avatar, dob } = req.body;
-		// Check if the user already exists
-		const existingUser = await User.findOne({ email });
-		if (existingUser) {
-			return res
-				.status(400)
-				.json({ error: "User already exists with this email" });
-		}
-
-		// Hash the password using bcrypt
-		const hashedPassword = !password
-			? await argon2.hash("wecinema")
-			: await argon2.hash(password);
-
-		// Create a new user
-		const newUser = await User.create({
-			username,
-			email,
-			password: hashedPassword,
-			avatar: avatar
-				? avatar
-				: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-			dob,
-		});
-		res
-			.status(201)
-			.json({ message: "User registered successfully", user: newUser.email });
+	  const userRecord = await auth.createUser({
+		email: email,
+		displayName: username,
+		photoURL: avatar,
+		password: dob
+	  });
+  
+	  const token = await auth.createCustomToken(userRecord.uid);
+  
+	  res.status(200).send({
+		id: userRecord.uid,
+		token: token,
+		message: 'Registration successful and logged in!'
+	  });
 	} catch (error) {
-		console.error("Error creating user:", error);
-		res.status(500).json({ error: "Internal Server Error" });
+	  if (error.code === 'auth/email-already-exists') {
+		res.status(400).send({ error: 'Email already exists.' });
+	  } else {
+		res.status(500).send({ error: 'Error creating user.' });
+	  }
 	}
 });
 router.post("/login", async (req, res) => {
+	const { email } = req.body;
+  
 	try {
-	  const { email, password } = req.body;
-	  console.log('Received email:', email);
-	  console.log('Received password:', password);
+	  const user = await auth.getUserByEmail(email);
   
-	  // Find the user by email
-	  const user = await User.findOne({ email });
+	  // Note: Firebase Admin SDK doesn't support password authentication directly. 
+	  // You might need to verify password in a different way or rely on Firebase Authentication (client side) to handle this part.
   
-	  // Check if the user exists
-	  if (!user) {
-		return res.status(401).json({ error: "Invalid credentials." });
-	  }
+	  const token = await auth.createCustomToken(user.uid);
   
-	  // Compare the provided password with the hashed password in the database
-	  const passwordMatch = await argon2.verify(user.password, password);
-  
-	  if (passwordMatch) {
-		// If the passwords match, generate a JWT token for authentication
-		const token = jwt.sign(
-		  { userId: user._id, username: user.username, avatar: user.avatar },
-		  process.env.SECRET_KEY,
-		  { expiresIn: "8h" }
-		);
-  
-		res.status(200).json({ token });
-	  } else {
-		// If passwords do not match, return an error
-		res.status(401).json({ error: "Invalid credentials" });
-	  }
+	  res.status(200).send({
+		id: user.uid,
+		token: token,
+		message: 'Login successful!'
+	  });
 	} catch (error) {
-	  console.error("Error during login:", error);
-	  res.status(500).json({ error: "Internal Server Error" });
+	  res.status(500).send({ error: 'Login failed.' });
 	}
   });
   
