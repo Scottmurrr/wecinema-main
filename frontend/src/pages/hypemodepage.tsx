@@ -221,7 +221,7 @@ const HypeModeProfile = () => {
       }
     } catch (error) {
       console.error('Failed to get Firebase token:', error);
-      setPopupMessage('Failed to get Firebase token.. Please try again.');
+      setPopupMessage('Failed to get Firebase token. Please try again.');
       setShowPopup(true);
     }
   };
