@@ -51,7 +51,7 @@ router.post("/register", async (req, res) => {
 		email: email,
 		displayName: username,
 		photoURL: avatar,
-		password: dob
+		dob: dob
 	  });
   
 	  const token = await auth.createCustomToken(userRecord.uid);
