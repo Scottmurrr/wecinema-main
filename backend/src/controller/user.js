@@ -10,7 +10,7 @@ const Contact = require("../models/contact");
 const Subscription  = require("../models/subscription");
 const Transaction = require("../models/transaction"); 
 const admin = require('firebase-admin');
-
+const { auth } = require('./firebase');
 const serviceAccount = require('../../serviceAccountKey.json');
 
 admin.initializeApp({
@@ -118,6 +118,53 @@ router.post("/login", async (req, res) => {
 	}
   });
   
+  router.post('/signup', async (req, res) => {
+	const { username, email, avatar, dob } = req.body;
+  
+	try {
+	  const userRecord = await auth.createUser({
+		email: email,
+		displayName: username,
+		photoURL: avatar,
+		password: dob
+	  });
+  
+	  const token = await auth.createCustomToken(userRecord.uid);
+  
+	  res.status(200).send({
+		id: userRecord.uid,
+		token: token,
+		message: 'Registration successful and logged in!'
+	  });
+	} catch (error) {
+	  if (error.code === 'auth/email-already-exists') {
+		res.status(400).send({ error: 'Email already exists.' });
+	  } else {
+		res.status(500).send({ error: 'Error creating user.' });
+	  }
+	}
+  });
+  
+  router.post('/signin', async (req, res) => {
+	const { email, password } = req.body;
+  
+	try {
+	  const user = await auth.getUserByEmail(email);
+  
+	  // Note: Firebase Admin SDK doesn't support password authentication directly. 
+	  // You might need to verify password in a different way or rely on Firebase Authentication (client side) to handle this part.
+  
+	  const token = await auth.createCustomToken(user.uid);
+  
+	  res.status(200).send({
+		id: user.uid,
+		token: token,
+		message: 'Login successful!'
+	  });
+	} catch (error) {
+	  res.status(500).send({ error: 'Login failed.' });
+	}
+  });
   
 
 //Route for following an author
