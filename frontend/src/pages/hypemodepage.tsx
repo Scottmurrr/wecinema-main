@@ -296,7 +296,7 @@ const HypeModeProfile = () => {
     <Layout expand={false} hasHeader={false}>
       <MainContainer>
         <ToggleButton onClick={toggleSignupSignin}>
-          {isSignup ? "Already have an account? Switch to Sign in" : "Don't have an account? Switch to Sign up"}
+          {isSignup ? "Already have an account? Switch  to Sign in" : "Don't have an account? Switch to Sign up"}
         </ToggleButton>
 
         <RightContainer>

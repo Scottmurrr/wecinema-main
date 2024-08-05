@@ -12,6 +12,9 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
+    password: {
+        type: String,
+    },
     status: {
         type: Boolean,
         default: true,

@@ -10,7 +10,7 @@ const Contact = require("../models/contact");
 const Subscription  = require("../models/subscription");
 const Transaction = require("../models/transaction"); 
 const admin = require('firebase-admin');
-const { auth } = require('./firebase');
+
 const serviceAccount = require('../../serviceAccountKey.json');
 
 admin.initializeApp({
@@ -18,6 +18,11 @@ admin.initializeApp({
   databaseURL: "https://wecinema-821f9-default-rtdb.firebaseio.com"
 });
 const db = admin.database();
+
+
+// PayPal credentials
+const PAYPAL_CLIENT_ID = 'ATCFEkRI4lCXYSceFX1O3WVIym-HN0raTtEpXUUH8hTDI5kmPbbaWqI6I0K6nLRap16jZJoO33HtcFy7';
+const PAYPAL_SECRET = 'EIom_qzr0MhKHqPqFfhl6hqaTZFBg6n4AENu_8i8Bgsx86cQ9q0bWIIb235hLwdaDKPdG-i7qYUHpf5L';
 
 
 
@@ -44,99 +49,75 @@ router.post("/contact", async (req, res) => {
 
 // Route for creating a user account
 router.post("/register", async (req, res) => {
-	const { username, email, avatar, dob } = req.body;
-  
 	try {
-	  const userRecord = await auth.createUser({
-		email: email,
-		displayName: username,
-		photoURL: avatar,
-		dob: dob
-	  });
-  
-	  const token = await auth.createCustomToken(userRecord.uid);
-  
-	  res.status(200).send({
-		id: userRecord.uid,
-		token: token,
-		message: 'Registration successful and logged in!'
-	  });
+		const { username, email, password, avatar, dob } = req.body;
+		// Check if the user already exists
+		const existingUser = await User.findOne({ email });
+		if (existingUser) {
+			return res
+				.status(400)
+				.json({ error: "User already exists with this email" });
+		}
+
+		// Hash the password using bcrypt
+		const hashedPassword = !password
+			? await argon2.hash("wecinema")
+			: await argon2.hash(password);
+
+		// Create a new user
+		const newUser = await User.create({
+			username,
+			email,
+			password: hashedPassword,
+			avatar: avatar
+				? avatar
+				: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+			dob,
+		});
+		res
+			.status(201)
+			.json({ message: "User registered successfully", user: newUser.email });
 	} catch (error) {
-	  if (error.code === 'auth/email-already-exists') {
-		res.status(400).send({ error: 'Email already exists.' });
-	  } else {
-		res.status(500).send({ error: 'Error creating user.' });
-	  }
+		console.error("Error creating user:", error);
+		res.status(500).json({ error: "Internal Server Error" });
 	}
 });
 router.post("/login", async (req, res) => {
-	const { email } = req.body;
-  
 	try {
-	  const user = await auth.getUserByEmail(email);
+	  const { email, password } = req.body;
+	  console.log('Received email:', email);
+	  console.log('Received password:', password);
   
-	  // Note: Firebase Admin SDK doesn't support password authentication directly. 
-	  // You might need to verify password in a different way or rely on Firebase Authentication (client side) to handle this part.
+	  // Find the user by email
+	  const user = await User.findOne({ email });
   
-	  const token = await auth.createCustomToken(user.uid);
-  
-	  res.status(200).send({
-		id: user.uid,
-		token: token,
-		message: 'Login successful!'
-	  });
-	} catch (error) {
-	  res.status(500).send({ error: 'Login failed.' });
-	}
-  });
-  
-router.post("/signup", async (req, res) => {
-	const { username, email, avatar, dob } = req.body;
-  
-	try {
-	  const userRecord = await auth.createUser({
-		email: email,
-		displayName: username,
-		photoURL: avatar,
-		password: dob
-	  });
-  
-	  const token = await auth.createCustomToken(userRecord.uid);
-  
-	  res.status(200).send({
-		id: userRecord.uid,
-		token: token,
-		message: 'Registration successful and logged in!'
-	  });
-	} catch (error) {
-	  if (error.code === 'auth/email-already-exists') {
-		res.status(400).send({ error: 'Email already exists.' });
-	  } else {
-		res.status(500).send({ error: 'Error creating user.' });
+	  // Check if the user exists
+	  if (!user) {
+		return res.status(401).json({ error: "Invalid credentials." });
 	  }
-	}
-  });
-
-router.post("/signin", async (req, res) => {
-	const { email } = req.body;
   
-	try {
-	  const user = await auth.getUserByEmail(email);
+	  // Compare the provided password with the hashed password in the database
+	  const passwordMatch = await argon2.verify(user.password, password);
   
-	  // Note: Firebase Admin SDK doesn't support password authentication directly. 
-	  // You might need to verify password in a different way or rely on Firebase Authentication (client side) to handle this part.
+	  if (passwordMatch) {
+		// If the passwords match, generate a JWT token for authentication
+		const token = jwt.sign(
+		  { userId: user._id, username: user.username, avatar: user.avatar },
+		  process.env.SECRET_KEY,
+		  { expiresIn: "8h" }
+		);
   
-	  const token = await auth.createCustomToken(user.uid);
-  
-	  res.status(200).send({
-		id: user.uid,
-		token: token,
-		message: 'Login successful!'
-	  });
+		res.status(200).json({ token });
+	  } else {
+		// If passwords do not match, return an error
+		res.status(401).json({ error: "Invalid credentials" });
+	  }
 	} catch (error) {
-	  res.status(500).send({ error: 'Login failed.' });
+	  console.error("Error during login:", error);
+	  res.status(500).json({ error: "Internal Server Error" });
 	}
   });
+  
   
 
 //Route for following an author
