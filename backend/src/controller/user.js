@@ -11,14 +11,7 @@ const Subscription  = require("../models/subscription");
 const Transaction = require("../models/transaction"); 
 const admin = require('../firebaseAdmin');
 
-admin.auth().verifyIdToken(idToken)
-  .then((decodedToken) => {
-    const uid = decodedToken.uid;
-    // ...
-  })
-  .catch((error) => {
-    console.error('Error verifying token:', error);
-  });
+
 
 const { authenticateMiddleware, isAdmin } = require("../utils");
 
