@@ -51,13 +51,13 @@ const GenrePage: React.FC = () => {
         const result = await getRequest(`/user/${userId}`, setLoading);
         setUser(result);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data.:", error);
       }
     };
 
     const checkUserPaymentStatus = async () => {
       try {
-        const response = await axios.get(`https://wecinema.onrender.com/user/payment-status/${userId}`);
+        const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
         const { hasPaid } = response.data;
         setUserHasPaid(hasPaid);
       } catch (error) {
@@ -67,7 +67,7 @@ const GenrePage: React.FC = () => {
 
     const fetchPaidUsers = async () => {
       try {
-        const response = await axios.get(`https://wecinema.onrender.com/user/paid-users`);
+        const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/paid-users`);
         const users = response.data;
         const filteredUsers = users.filter((paidUser: any) => paidUser._id !== userId);
         setPaidUsers(filteredUsers);
