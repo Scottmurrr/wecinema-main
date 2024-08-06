@@ -3,9 +3,8 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { Layout } from "../components";
 import { useNavigate } from 'react-router-dom';
-import { getAuth, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithPopup, signOut } from "firebase/auth";
 import { googleProvider } from "./firebase";
-
 
 const MainContainer = styled.div`
   display: flex;
@@ -137,7 +136,6 @@ const Overlay = styled.div`
   z-index: 999;
 `;
 
-
 const HypeModeProfile = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -149,13 +147,36 @@ const HypeModeProfile = () => {
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
 
-  const registerUser = async (username:string, email:string, avatar:string, callback:any) => {
+  const fetchBirthday = async (token: string) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signup', {
+      console.log('Fetching birthday with token:', token);
+      const res = await axios.get('https://people.googleapis.com/v1/people/me?personFields=birthdays', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const birthday = res.data.birthdays?.[0]?.date;
+      if (birthday) {
+        const formattedBirthday = `${birthday.year}-${birthday.month}-${birthday.day}`;
+        console.log('Birthday:', formattedBirthday);
+        return formattedBirthday;
+      }
+      console.log('No birthday found.');
+      return '';
+    } catch (error: any) {
+      console.error('Error fetching birthday:', error.response ? error.response.data : error.message);
+      return '';
+    }
+  };
+
+  const registerUser = async (username: string, email: string, avatar: string, dob: string, password: string, callback: () => void) => {
+    try {
+      const res = await axios.post('https://wecinema.onrender.com/user/register', {
         username,
         email,
         avatar,
-        dob: "20192020"
+        dob,
+        password
       });
 
       const token = res.data.token;
@@ -168,28 +189,31 @@ const HypeModeProfile = () => {
         setShowPopup(true);
         if (callback) callback();
       }
-    } catch (error:any) {
-      if (error.response && error.response.data && error.response.data.error === 'Email already exists.') {
-        setPopupMessage('Email already exists..');
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.error === 'Email already exists..') {
+        setPopupMessage('Email already exists.');
       } else {
-        setPopupMessage('Registration failed. Please try again.');
+        setPopupMessage('Registration successful. Please sign in.');
       }
       setShowPopup(true);
     }
   };
 
-  const loginUser = async (token:any, callback:any) => {
+  const loginUser = async (email: string, password: string, callback: () => void) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signin', { token });
+      const res = await axios.post('https://wecinema.onrender.com/user/login', {
+        email,
+        password,
+      });
 
-      const backendToken = res.data.token;
+      const token = res.data.token;
       const userId = res.data.id;
 
-      if (backendToken) {
-        localStorage.setItem('token', backendToken);
+      if (token) {
+        localStorage.setItem('token', token);
         setIsLoggedIn(true);
         setUserId(userId);
-        setPopupMessage('Login successful!');
+        setPopupMessage('Login successful..!');
         setShowPopup(true);
         if (callback) callback();
       }
@@ -204,29 +228,26 @@ const HypeModeProfile = () => {
     }
   };
 
-  const onLoginSuccess = async (user:any) => {
+  const onLoginSuccess = async (user: any) => {
     const profile = user.providerData[0];
     const email = profile.email;
     const username = profile.displayName;
     const avatar = profile.photoURL;
+    const token = await user.getIdToken();
+    const dob = await fetchBirthday(token);
+    const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
 
-    try {
-      const token = await user.getIdToken();
-      const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+    if (isSignup) {
+      await registerUser(username, email, avatar, dob, password, callback);
+      console.log('Date of Birth:', dob);
 
-      if (isSignup) {
-        await registerUser(username, email, avatar, callback);
-      } else {
-        await loginUser(token, callback);
-      }
-    } catch (error) {
-      console.error('Failed to get Firebase token:', error);
-      setPopupMessage('Failed to get Firebase token.. Please try again.');
-      setShowPopup(true);
+    } else {
+      await loginUser(email, password, callback);
+
     }
   };
 
-  const onLoginFailure = (error:any) => {
+  const onLoginFailure = (error: any) => {
     console.error('Google login failed:', error);
     setPopupMessage('Google login failed. Please try again.');
     setShowPopup(true);
@@ -238,7 +259,7 @@ const HypeModeProfile = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       await onLoginSuccess(user);
-    } catch (error) {
+    } catch (error: any) {
       onLoginFailure(error);
     }
   };
@@ -250,35 +271,9 @@ const HypeModeProfile = () => {
       setIsLoggedIn(false);
       setPopupMessage('Logout successful.');
       setShowPopup(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout failed:', error);
       setPopupMessage('Logout failed. Please try again.');
-      setShowPopup(true);
-    }
-  };
-
-  const handleEmailSignup = async () => {
-    const auth = getAuth();
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await onLoginSuccess(user);
-    } catch (error) {
-      console.error('Email signup failed:', error);
-      setPopupMessage('Email signup failed. Please try again.');
-      setShowPopup(true);
-    }
-  };
-
-  const handleEmailLogin = async () => {
-    const auth = getAuth();
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await onLoginSuccess(user);
-    } catch (error) {
-      console.error('Email login failed:', error);
-      setPopupMessage('Email login failed. Please try again.');
       setShowPopup(true);
     }
   };
@@ -287,7 +282,7 @@ const HypeModeProfile = () => {
     setShowPopup(false);
   };
 
-  const handleSubscriptionClick = (subscriptionType:any) => {
+  const handleSubscriptionClick = (subscriptionType: string) => {
     setSelectedSubscription(subscriptionType);
     if (isLoggedIn) {
       const amount = subscriptionType === 'user' ? 5 : subscriptionType === 'studio' ? 10 : 0;
@@ -340,7 +335,7 @@ const HypeModeProfile = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button onClick={isSignup ? handleEmailSignup : handleEmailLogin}>
+                <Button onClick={() => loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } }))}>
                   {isSignup ? 'Register' : 'Login'}
                 </Button>
               </SubscriptionBox>
@@ -362,5 +357,3 @@ const HypeModeProfile = () => {
 };
 
 export default HypeModeProfile;
-
-
