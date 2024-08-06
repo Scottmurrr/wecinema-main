@@ -218,7 +218,6 @@ const PaymentComponent = () => {
               <div>
                 <Title>Proceed to Payment</Title>
                 <Description>Your subscription type: {subscriptionType}</Description>
-                <Description>UserID: {userId}</Description>
                 <Description>Amount: ${amount}</Description>
                 <Description>Pay with PayPal or Debit Card</Description>
                 <PayPalButtonWrapper amount={amount} userId={userId} onSuccess={handlePaymentSuccess} onError={handlePaymentError} />
