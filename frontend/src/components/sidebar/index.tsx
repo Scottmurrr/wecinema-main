@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const fetchPaymentStatus = async (userId: any) => {
     try {
-      const response = await axios.get(`https://wecinema.onrender.com/user/payment-status/${userId}`);
+      const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
       setHasPaid(response.data.hasPaid);
     } catch (error) {
       console.error('Payment status error:', error);
