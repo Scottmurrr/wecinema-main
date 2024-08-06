@@ -147,35 +147,15 @@ const HypeModeProfile = () => {
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
 
-  const fetchBirthday = async (token: string) => {
-    try {
-      console.log('Fetching birthday with token:', token);
-      const res = await axios.get('https://people.googleapis.com/v1/people/me?personFields=birthdays', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const birthday = res.data.birthdays?.[0]?.date;
-      if (birthday) {
-        const formattedBirthday = `${birthday.year}-${birthday.month}-${birthday.day}`;
-        console.log('Birthday:', formattedBirthday);
-        return formattedBirthday;
-      }
-      console.log('No birthday found.');
-      return '';
-    } catch (error: any) {
-      console.error('Error fetching birthday:', error.response ? error.response.data : error.message);
-      return '';
-    }
-  };
+ 
 
-  const registerUser = async (username: string, email: string, avatar: string, dob: string, password: string, callback: () => void) => {
+  const registerUser = async (username: string, email: string, avatar: string, password: string, callback: () => void) => {
     try {
-      const res = await axios.post('https://wecinema.onrender.com/user/register', {
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/register', {
         username,
         email,
         avatar,
-        dob,
+        dob:"20091999",
         password
       });
 
@@ -201,7 +181,7 @@ const HypeModeProfile = () => {
 
   const loginUser = async (email: string, password: string, callback: () => void) => {
     try {
-      const res = await axios.post('https://wecinema.onrender.com/user/login', {
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/login', {
         email,
         password,
       });
@@ -233,13 +213,11 @@ const HypeModeProfile = () => {
     const email = profile.email;
     const username = profile.displayName;
     const avatar = profile.photoURL;
-    const token = await user.getIdToken();
-    const dob = await fetchBirthday(token);
     const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
 
     if (isSignup) {
-      await registerUser(username, email, avatar, dob, password, callback);
-      console.log('Date of Birth:', dob);
+      await registerUser(username, email, avatar, password, callback);
+     
 
     } else {
       await loginUser(email, password, callback);
