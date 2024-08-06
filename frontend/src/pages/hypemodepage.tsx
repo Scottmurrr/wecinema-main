@@ -263,25 +263,36 @@ const HypeModeProfile = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await onLoginSuccess(user);
-    } catch (error) {
+    } catch (error:any) {
       console.error('Email signup failed:', error);
-      setPopupMessage('Email signup failed. Please try again.');
+      if (error.code === 'auth/email-already-in-use') {
+        setPopupMessage('Email already in use. Please try logging in.');
+      } else {
+        setPopupMessage('Email signup failed. Please try again.');
+      }
       setShowPopup(true);
     }
   };
-
+  
   const handleEmailLogin = async () => {
     const auth = getAuth();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await onLoginSuccess(user);
-    } catch (error) {
+    } catch (error:any) {
       console.error('Email login failed:', error);
-      setPopupMessage('Email login failed. Please try again.');
+      if (error.code === 'auth/user-not-found') {
+        setPopupMessage('No user found with this email. Please sign up.');
+      } else if (error.code === 'auth/wrong-password') {
+        setPopupMessage('Incorrect password. Please try again.');
+      } else {
+        setPopupMessage('Email login failed. Please try again.');
+      }
       setShowPopup(true);
     }
   };
+  
 
   const closePopup = () => {
     setShowPopup(false);
