@@ -11,9 +11,27 @@ const Subscription  = require("../models/subscription");
 const Transaction = require("../models/transaction"); 
 const admin = require('../firebaseAdmin');
 
-
+admin.auth().verifyIdToken(idToken)
+  .then((decodedToken) => {
+    const uid = decodedToken.uid;
+    // ...
+  })
+  .catch((error) => {
+    console.error('Error verifying token:', error);
+  });
 
 const { authenticateMiddleware, isAdmin } = require("../utils");
+
+router.post('/verify-token', async (req, res) => {
+	const idToken = req.body.token;
+  
+	try {
+	  const decodedToken = await admin.auth().verifyIdToken(idToken);
+	  res.status(200).send(decodedToken);
+	} catch (error) {
+	  res.status(401).send({ error: 'Token is not valid' });
+	}
+  });
 router.post("/contact", async (req, res) => {
     try {
         const { name, email, message } = req.body;
