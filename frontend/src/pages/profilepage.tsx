@@ -146,7 +146,7 @@ const GenrePage: React.FC<GenreProps> = ({}) => {
                 <div className="flex bg-grey justify-center w-full items-start my-0 mx-auto h-52 sm:h-80">
                     <img
                         className="w-50 h-45"
-                        src="https://scontent.flhe2-3.fna.fbcdn.net/v/t39.30808-6/444216752_345821988607794_6329538777469570636_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGYFCDEJ1QbFUUd1O9lu-MCLkagD0qX1oguRqAPSpfWiP3Oet-k3fSC3nzNN-Ys5ScBx-IItAfH-SZPks5l3M4t&_nc_ohc=_KTwnbQlAB0Q7kNvgGL19pq&_nc_zt=23&_nc_ht=scontent.flhe2-3.fna&oh=00_AYAp4ZpG5Yn9MrzkjwqFPA4awpKnjWdthyTmBGapfnKhvg&oe=6697FD0B"
+                        src="https://scontent.fskt1-1.fna.fbcdn.net/v/t39.30808-6/444216752_345821988607794_6329538777469570636_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=yMtHlBxL9RYQ7kNvgHi4jZX&_nc_ht=scontent.fskt1-1.fna&oh=00_AYAq7vaMutpP30lroJ21P79_6p1rDfnECE7vL8iyZtLt3g&oe=66B849CB"
                         width="1200"
                         height="200"
                         alt="Cover"
@@ -158,7 +158,7 @@ const GenrePage: React.FC<GenreProps> = ({}) => {
                             <div className="overflow-hidden flex justify-center mt--8 items-center">
                                 <img
                                     className="rounded-full bg-white h-16 w-16 sm:h-36 sm:w-36 border-2 p-1 border-white"
-                                    src="https://scontent.flhe2-4.fna.fbcdn.net/v/t39.30808-6/445203505_345868328603160_4760708580844450177_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeE8P2dumlbz7izsnsIVcGg8OBz1JUUJV-s4HPUlRQlX6w0dohiahoR1GJWJNrVI7F95g_SqgTiSbotvIX9S-_UU&_nc_ohc=KXBrT5ifmwMQ7kNvgGENLwx&_nc_zt=23&_nc_ht=scontent.flhe2-4.fna&oh=00_AYAhYdSYD9aJQhlbLDin0hTxM4Y6zxbxghYRvSIJxmjuOw&oe=669807E1"
+                                    src="https://scontent.fskt1-1.fna.fbcdn.net/v/t39.30808-6/445203505_345868328603160_4760708580844450177_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=hkiV8mEfSNQQ7kNvgEB6XvB&_nc_ht=scontent.fskt1-1.fna&oh=00_AYDQKe6io9l6z51Lz0GU8elgrGiJpae6V6RXlxPgXuXNEg&oe=66B854A1"
                                     alt="Avatar"
                                 />
                             </div>
