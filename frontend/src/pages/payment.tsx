@@ -164,7 +164,7 @@ const PaymentComponent = () => {
           setUserHasPaid(hasPaid);
         }
       } catch (error) {
-        console.error('Error fetching user payment status:', error);
+        console.error('Error fetching user payment status.:', error);
       }
     };
 
