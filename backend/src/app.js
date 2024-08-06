@@ -22,7 +22,7 @@ const allowedOrigins = [
     "https://wecinema.co",
     "http://localhost:3000",
     "https://wecinema-admin.onrender.com",
-    "https://wecinema.onrender.com",
+    "https://wecinema-main-vcam.onrender.com",
     "https://wecinemaco.firebaseapp.com",
 ];
 
