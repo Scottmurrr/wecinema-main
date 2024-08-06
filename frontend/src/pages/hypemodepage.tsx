@@ -178,9 +178,9 @@ const HypeModeProfile = () => {
     }
   };
 
-  const loginUser = async (token:any, callback:any) => {
+  const loginUser = async (email:any, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/login', { token });
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/login', { email });
 
       const backendToken = res.data.token;
       const userId = res.data.id;
@@ -211,13 +211,12 @@ const HypeModeProfile = () => {
     const avatar = profile.photoURL;
 
     try {
-      const token = await user.getIdToken();
       const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
 
       if (isSignup) {
         await registerUser(username, email, avatar, callback);
       } else {
-        await loginUser(token, callback);
+        await loginUser(email, callback);
       }
     } catch (error) {
       console.error('Failed to get Firebase token:', error);
