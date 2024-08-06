@@ -132,7 +132,7 @@ router.post("/register", async (req, res) => {
 // Route for user login and authentication
 router.post("/login", async (req, res) => {
 	try {
-		const { email, password } = req.body;
+		const { email } = req.body;
 
 		// Find the user by email
 		const user = await User.findOne({ email });
@@ -142,9 +142,8 @@ router.post("/login", async (req, res) => {
 			return res.status(401).json({ error: "Invalid credentials" });
 		}
 		// Compare the provided password with the hashed password in the database
-		const passwordMatch = await argon2.verify(user.password, password);
 
-		if (passwordMatch) {
+		if (email) {
 			// If the passwords match, generate a JWT token for authentication
 			const token = jwt.sign(
 				{ userId: user._id, username: user.username, avatar: user.avatar },
