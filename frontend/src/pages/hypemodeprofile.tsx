@@ -204,7 +204,7 @@ const GenrePage: React.FC = () => {
           </button>
         </Modal>
       )}
-                        			<HypemodeGallery title="Action" category="Action" length={5} isFirst />
+      <HypemodeGallery title="Action" category="Action" length={5} isFirst />
 			<HypemodeGallery title="Comedy" length={5} category="Comedy" />
 			<HypemodeGallery title="Horror" length={5} category="Horror" />
 			<HypemodeGallery title="Drama" length={5} category="Drama" />
