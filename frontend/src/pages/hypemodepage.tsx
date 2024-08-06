@@ -3,8 +3,9 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { Layout } from "../components";
 import { useNavigate } from 'react-router-dom';
-import { getAuth, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { googleProvider } from "./firebase";
+
 
 const MainContainer = styled.div`
   display: flex;
@@ -136,6 +137,7 @@ const Overlay = styled.div`
   z-index: 999;
 `;
 
+
 const HypeModeProfile = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -147,16 +149,13 @@ const HypeModeProfile = () => {
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
 
- 
-
-  const registerUser = async (username: string, email: string, avatar: string, password: string, callback: () => void) => {
+  const registerUser = async (username:string, email:string, avatar:string, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/register', {
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signup', {
         username,
         email,
         avatar,
-        dob:"20091999",
-        password
+        dob: "20192020"
       });
 
       const token = res.data.token;
@@ -169,31 +168,28 @@ const HypeModeProfile = () => {
         setShowPopup(true);
         if (callback) callback();
       }
-    } catch (error: any) {
-      if (error.response && error.response.data && error.response.data.error === 'Email already exists..') {
-        setPopupMessage('Email already exists.');
+    } catch (error:any) {
+      if (error.response && error.response.data && error.response.data.error === 'Email already exists.') {
+        setPopupMessage('Email already exists..');
       } else {
-        setPopupMessage('Registration successful. Please sign in.');
+        setPopupMessage('Registration failed. Please try again.');
       }
       setShowPopup(true);
     }
   };
 
-  const loginUser = async (email: string, password: string, callback: () => void) => {
+  const loginUser = async (token:any, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/login', {
-        email,
-        password,
-      });
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signin', { token });
 
-      const token = res.data.token;
+      const backendToken = res.data.token;
       const userId = res.data.id;
 
-      if (token) {
-        localStorage.setItem('token', token);
+      if (backendToken) {
+        localStorage.setItem('token', backendToken);
         setIsLoggedIn(true);
         setUserId(userId);
-        setPopupMessage('Login successful..!');
+        setPopupMessage('Login successful!');
         setShowPopup(true);
         if (callback) callback();
       }
@@ -208,24 +204,29 @@ const HypeModeProfile = () => {
     }
   };
 
-  const onLoginSuccess = async (user: any) => {
+  const onLoginSuccess = async (user:any) => {
     const profile = user.providerData[0];
     const email = profile.email;
     const username = profile.displayName;
     const avatar = profile.photoURL;
-    const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
 
-    if (isSignup) {
-      await registerUser(username, email, avatar, password, callback);
-     
+    try {
+      const token = await user.getIdToken();
+      const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
 
-    } else {
-      await loginUser(email, password, callback);
-
+      if (isSignup) {
+        await registerUser(username, email, avatar, callback);
+      } else {
+        await loginUser(token, callback);
+      }
+    } catch (error) {
+      console.error('Failed to get Firebase token:', error);
+      setPopupMessage('Failed to get Firebase token.. Please try again.');
+      setShowPopup(true);
     }
   };
 
-  const onLoginFailure = (error: any) => {
+  const onLoginFailure = (error:any) => {
     console.error('Google login failed:', error);
     setPopupMessage('Google login failed. Please try again.');
     setShowPopup(true);
@@ -237,7 +238,7 @@ const HypeModeProfile = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       await onLoginSuccess(user);
-    } catch (error: any) {
+    } catch (error) {
       onLoginFailure(error);
     }
   };
@@ -249,9 +250,35 @@ const HypeModeProfile = () => {
       setIsLoggedIn(false);
       setPopupMessage('Logout successful.');
       setShowPopup(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Logout failed:', error);
       setPopupMessage('Logout failed. Please try again.');
+      setShowPopup(true);
+    }
+  };
+
+  const handleEmailSignup = async () => {
+    const auth = getAuth();
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await onLoginSuccess(user);
+    } catch (error) {
+      console.error('Email signup failed:', error);
+      setPopupMessage('Email signup failed. Please try again.');
+      setShowPopup(true);
+    }
+  };
+
+  const handleEmailLogin = async () => {
+    const auth = getAuth();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await onLoginSuccess(user);
+    } catch (error) {
+      console.error('Email login failed:', error);
+      setPopupMessage('Email login failed. Please try again.');
       setShowPopup(true);
     }
   };
@@ -260,7 +287,7 @@ const HypeModeProfile = () => {
     setShowPopup(false);
   };
 
-  const handleSubscriptionClick = (subscriptionType: string) => {
+  const handleSubscriptionClick = (subscriptionType:any) => {
     setSelectedSubscription(subscriptionType);
     if (isLoggedIn) {
       const amount = subscriptionType === 'user' ? 5 : subscriptionType === 'studio' ? 10 : 0;
@@ -313,7 +340,7 @@ const HypeModeProfile = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Button onClick={() => loginUser(email, password, () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } }))}>
+                <Button onClick={isSignup ? handleEmailSignup : handleEmailLogin}>
                   {isSignup ? 'Register' : 'Login'}
                 </Button>
               </SubscriptionBox>
@@ -335,3 +362,5 @@ const HypeModeProfile = () => {
 };
 
 export default HypeModeProfile;
+
+

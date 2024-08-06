@@ -47,7 +47,7 @@ router.post("/contact", async (req, res) => {
 
 // User registration route
 router.post('/signup', async (req, res) => {
-	const { username, email, avatar } = req.body;
+	const { username, email, avatar, dob} = req.body;
 	
 	try {
 	  const userRecord = await admin.auth().createUser({
@@ -57,9 +57,16 @@ router.post('/signup', async (req, res) => {
 	  });
   
 	  const token = await admin.auth().createCustomToken(userRecord.uid);
-  
+	  const newUser = await User.create({
+		username,
+		email,
+		avatar: avatar
+			? avatar
+			: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+		dob,
+	});
 	  res.status(201).json({
-		message: 'User registered successfully',
+		message: 'User registered successfully' , user: newUser.email,
 		id: userRecord.uid,
 		token
 	  });
