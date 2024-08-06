@@ -151,7 +151,7 @@ const HypeModeProfile = () => {
 
   const registerUser = async (username:string, email:string, avatar:string, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/register', {
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signup', {
         username,
         email,
         avatar,
@@ -180,7 +180,7 @@ const HypeModeProfile = () => {
 
   const loginUser = async (token:any, callback:any) => {
     try {
-      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/login', { token });
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signin', { token });
 
       const backendToken = res.data.token;
       const userId = res.data.id;
