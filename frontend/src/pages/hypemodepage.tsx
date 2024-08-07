@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import styled from 'styled-components';
 import { Layout } from "../components";
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from 'react-google-login';
+import { decodeToken } from "../utilities/helperfFunction";
+
 
 const MainContainer = styled.div`
   display: flex;
@@ -146,7 +147,52 @@ const HypeModeProfile = () => {
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
 
-  const registerUser = async (username:any, email:any, avatar:any, callback:any) => {
+  useEffect(() => {
+    const loadGoogleIdentityScript = () => {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (window.google) {
+          window.google.accounts.id.initialize({
+            client_id: '854144808645-t4jd10ehpngjnfvki8mcuq7q0uvr2kjo.apps.googleusercontent.com',
+            callback: handleGoogleResponse,
+          });
+          window.google.accounts.id.renderButton(
+            document.getElementById('googleSignInButton') as HTMLDivElement,
+            { theme: 'outline', size: 'large' }
+          );
+        }
+      };
+      document.body.appendChild(script);
+    };
+
+    loadGoogleIdentityScript();
+  }, []);
+
+  const handleGoogleResponse = async (response: any) => {
+    const user = decodeToken(response.credential);
+    const email = user.email;
+    const username = user.name;
+    const avatar = user.picture;
+
+    try {
+      const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+
+      if (isSignup) {
+        await registerUser(username, email, avatar, callback);
+      } else {
+        await loginUser(email, callback);
+      }
+    } catch (error) {
+      console.error('Failed to get token:', error);
+      setPopupMessage('Failed to get token.. Please try again.');
+      setShowPopup(true);
+    }
+  };
+
+  const registerUser = async (username: string, email: string, avatar: string, callback?: any) => {
     try {
       const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signup', {
         username,
@@ -165,7 +211,7 @@ const HypeModeProfile = () => {
         setShowPopup(true);
         if (callback) callback();
       }
-    } catch (error:any) {
+    } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error === 'Email already exists.') {
         setPopupMessage('Email already exists..');
       } else {
@@ -175,7 +221,7 @@ const HypeModeProfile = () => {
     }
   };
 
-  const loginUser = async (email:any, callback:any) => {
+  const loginUser = async (email: string, callback?: any) => {
     try {
       const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signin', { email });
 
@@ -190,7 +236,7 @@ const HypeModeProfile = () => {
         setShowPopup(true);
         if (callback) callback();
       }
-    } catch (error:any) {
+    } catch (error: any) {
       console.error('Login failed:', error);
       if (error.response) {
         setPopupMessage(error.response.data.message || 'Login failed.');
@@ -201,59 +247,69 @@ const HypeModeProfile = () => {
     }
   };
 
-  const onLoginSuccess = async (response:any) => {
-    const profile = response.profileObj;
-    const email = profile.email;
-    const username = profile.name;
-    const avatar = profile.imageUrl;
-
-    try {
-      const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
-
-      if (isSignup) {
-        await registerUser(username, email, avatar, callback);
-      } else {
-        await loginUser(email, callback);
-      }
-    } catch (error) {
-      console.error('Failed to get token:', error);
-      setPopupMessage('Failed to get token.. Please try again.');
-      setShowPopup(true);
-    }
-  };
-
-  const onLoginFailure = (error:any) => {
-    console.error('Google login failed:', error);
-    setPopupMessage('Google login failed. Please try again.');
-    setShowPopup(true);
-  };
-
-  const handleGoogleLogin = (response:any) => {
-    onLoginSuccess(response);
-  };
-
- 
-
   const handleEmailSignup = async () => {
     try {
-      // Replace this with your own email signup logic
-      setPopupMessage('Email signup not implemented.');
-      setShowPopup(true);
-    } catch (error) {
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signup', { email, password });
+      const token = res.data.token;
+      const userId = res.data.id;
+
+      if (token) {
+        localStorage.setItem('token', token);
+        setIsLoggedIn(true);
+        setUserId(userId);
+        setPopupMessage('Registration successful!');
+        setShowPopup(true);
+        navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+      }
+    } catch (error: any) {
       console.error('Email signup failed:', error);
-      setPopupMessage('Email signup failed. Please try again.');
+      if (error.response) {
+        setPopupMessage(error.response.data.message || 'Email signup failed.');
+      } else {
+        setPopupMessage('Email signup failed.');
+      }
       setShowPopup(true);
     }
   };
 
   const handleEmailLogin = async () => {
     try {
-      // Replace this with your own email login logic
-      setPopupMessage('Email login not implemented.');
-      setShowPopup(true);
-    } catch (error) {
+      const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signin', { email, password });
+      const token = res.data.token;
+      const userId = res.data.id;
+
+      if (token) {
+        localStorage.setItem('token', token);
+        setIsLoggedIn(true);
+        setUserId(userId);
+        setPopupMessage('Login successful!');
+        setShowPopup(true);
+        navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
+      }
+    } catch (error: any) {
       console.error('Email login failed:', error);
-      setPopupMessage('Email login failed. Please try again.');
+      if (error.response) {
+        setPopupMessage(error.response.data.message || 'Email login failed.');
+      } else {
+        setPopupMessage('Email login failed.');
+      }
+      setShowPopup(true);
+    }
+  };
+
+  const handleGoogleLogout = async () => {
+    if (window.google) {
+      window.google.accounts.id.disableAutoSelect();
+      window.google.accounts.id.revoke('YOUR_GOOGLE_CLIENT_ID', () => {
+        localStorage.removeItem('token');
+        setIsLoggedIn(false);
+        setPopupMessage('Logout successful.');
+        setShowPopup(true);
+      });
+    } else {
+      localStorage.removeItem('token');
+      setIsLoggedIn(false);
+      setPopupMessage('Logout successful.');
       setShowPopup(true);
     }
   };
@@ -262,7 +318,7 @@ const HypeModeProfile = () => {
     setShowPopup(false);
   };
 
-  const handleSubscriptionClick = (subscriptionType:any) => {
+  const handleSubscriptionClick = (subscriptionType: string) => {
     setSelectedSubscription(subscriptionType);
     if (isLoggedIn) {
       const amount = subscriptionType === 'user' ? 5 : subscriptionType === 'studio' ? 10 : 0;
@@ -285,7 +341,8 @@ const HypeModeProfile = () => {
           {isLoggedIn ? (
             <SubscriptionContainer>
               <SubscriptionBox>
-              
+                <Title>Logout</Title>
+                <Button onClick={handleGoogleLogout}>Logout</Button>
               </SubscriptionBox>
             </SubscriptionContainer>
           ) : (
@@ -293,24 +350,12 @@ const HypeModeProfile = () => {
               <SubscriptionBox onClick={() => handleSubscriptionClick('user')}>
                 <Title>User Subscription</Title>
                 <Description>$5 a month to buy and sell films and scripts</Description>
-                <GoogleLogin
-                  clientId="854144808645-t4jd10ehpngjnfvki8mcuq7q0uvr2kjo.apps.googleusercontent.com"
-                  buttonText={isSignup ? "Sign up with Google" : "Sign in with Google"}
-                  onSuccess={handleGoogleLogin}
-                  onFailure={onLoginFailure}
-                  cookiePolicy={'single_host_origin'}
-                />
+                <div id="googleSignInButton"></div>
               </SubscriptionBox>
               <SubscriptionBox onClick={() => handleSubscriptionClick('studio')}>
                 <Title>Studio Subscription</Title>
                 <Description>$10 a month to buy and sell, get early access to new features</Description>
-                <GoogleLogin
-                  clientId="YOUR_GOOGLE_CLIENT_ID"
-                  buttonText={isSignup ? "Sign up with Google" : "Sign in with Google"}
-                  onSuccess={handleGoogleLogin}
-                  onFailure={onLoginFailure}
-                  cookiePolicy={'single_host_origin'}
-                />
+                <div id="googleSignInButton"></div>
               </SubscriptionBox>
               <SubscriptionBox>
                 <h3>{isSignup ? 'Register' : 'Login'} with Email</h3>
