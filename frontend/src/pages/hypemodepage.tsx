@@ -327,6 +327,9 @@ const HypeModeProfile = () => {
 
   const toggleSignupSignin = () => {
     setIsSignup(!isSignup);
+    // Clear email and password when toggling
+    setEmail('');
+    setPassword('');
   };
 
   return (
