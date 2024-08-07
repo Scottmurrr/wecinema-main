@@ -5,7 +5,6 @@ import { Layout } from "../components";
 import { useNavigate } from 'react-router-dom';
 import { decodeToken } from "../utilities/helperfFunction";
 
-
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -40,7 +39,7 @@ const SubscriptionContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  
+
   @media (min-width: 768px) {
     flex-direction: row;
     flex-wrap: wrap;
@@ -54,7 +53,7 @@ const SubscriptionBox = styled.div`
   width: 90%;
   margin: 10px 0;
   background-color: #fff;
-  
+
   @media (min-width: 768px) {
     width: 270px;
     margin: 10px;
@@ -187,7 +186,7 @@ const HypeModeProfile = () => {
       }
     } catch (error) {
       console.error('Failed to get token:', error);
-      setPopupMessage('Failed to get token.. Please try again.');
+      setPopupMessage('Failed to get token. Please try again.');
       setShowPopup(true);
     }
   };
@@ -205,7 +204,7 @@ const HypeModeProfile = () => {
       const userId = res.data.id;
 
       if (token) {
-        setPopupMessage('Registration successful and logged in.!');
+        setPopupMessage('Registration successful and logged in!');
         setIsLoggedIn(true);
         setUserId(userId);
         setShowPopup(true);
@@ -213,7 +212,7 @@ const HypeModeProfile = () => {
       }
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error === 'Email already exists.') {
-        setPopupMessage('Email already exists..');
+        setPopupMessage('Email already exists.');
       } else {
         setPopupMessage('Registration failed. Please try again.');
       }
@@ -350,11 +349,13 @@ const HypeModeProfile = () => {
               <SubscriptionBox onClick={() => handleSubscriptionClick('user')}>
                 <Title>User Subscription</Title>
                 <Description>$5 a month to buy and sell films and scripts</Description>
-                <div id="googleSignInButton"></div>
               </SubscriptionBox>
               <SubscriptionBox onClick={() => handleSubscriptionClick('studio')}>
                 <Title>Studio Subscription</Title>
                 <Description>$10 a month to buy and sell, get early access to new features</Description>
+              </SubscriptionBox>
+              <SubscriptionBox>
+                <h3>{isSignup ? 'Register' : 'Login'} with Google</h3>
                 <div id="googleSignInButton"></div>
               </SubscriptionBox>
               <SubscriptionBox>
