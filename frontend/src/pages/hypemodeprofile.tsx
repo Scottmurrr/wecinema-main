@@ -12,7 +12,7 @@ import { getDatabase, ref, push, serverTimestamp } from 'firebase/database'
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFFVP4F_tq9yfgra1szbT1yWFh_SCCGMg",
-  authDomain: "wecinema.co",
+  authDomain: "wecinema-5b6a4.firebaseapp.com",
   projectId: "wecinema-5b6a4",
   storageBucket: "wecinema-5b6a4.appspot.com",
   messagingSenderId: "962978250768",
@@ -42,7 +42,7 @@ const GenrePage: React.FC = () => {
 
   useEffect(() => {
     if (!userId) {
-      console.error('User ID is not defined..');
+      console.error('User ID is not defined.');
       return;
     }
 
