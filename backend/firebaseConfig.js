@@ -4,7 +4,7 @@ import { getDatabase } from 'firebase/database';
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 const firebaseConfig = {
     apiKey: "AIzaSyBFFVP4F_tq9yfgra1szbT1yWFh_SCCGMg",
-    authDomain: "wecinema.co",
+    authDomain: "wecinema-5b6a4.firebaseapp.com",
     projectId: "wecinema-5b6a4",
     storageBucket: "wecinema-5b6a4.appspot.com",
     messagingSenderId: "962978250768",
