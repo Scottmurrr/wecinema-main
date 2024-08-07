@@ -172,7 +172,7 @@ const PaymentComponent = () => {
 
   useEffect(() => {
     if (redirect) {
-      navigate('/home');
+      navigate('/');
     }
   }, [redirect, navigate]); // Redirect when the state changes
 

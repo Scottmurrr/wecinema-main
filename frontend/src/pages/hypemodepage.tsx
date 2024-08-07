@@ -159,11 +159,13 @@ const HypeModeProfile = () => {
       const token = res.data.token;
       const userId = res.data.id;
 
+      console.log('Registration Response:', res); // Debugging line
+      setPopupMessage('Registration successful Go back to logged in!');
+      setShowPopup(true);
+
       if (token) {
-        setPopupMessage('Registration successful and logged in!');
         setIsLoggedIn(true);
         setUserId(userId);
-        setShowPopup(true);
 
         setTimeout(() => {
           setShowPopup(false);
@@ -171,6 +173,7 @@ const HypeModeProfile = () => {
         }, 2000); // Show popup for 2 seconds before executing the callback
       }
     } catch (error:any) {
+      console.error('Registration Error:', error); // Debugging line
       if (error.response && error.response.data && error.response.data.error === 'Email already exists.') {
         setPopupMessage('Email already exists.');
       } else {
@@ -187,6 +190,8 @@ const HypeModeProfile = () => {
       const backendToken = res.data.token;
       const userId = res.data.id;
 
+      console.log('Login Response:', res); // Debugging line
+
       if (backendToken) {
         localStorage.setItem('token', backendToken);
         setIsLoggedIn(true);
@@ -196,7 +201,7 @@ const HypeModeProfile = () => {
         if (callback) callback();
       }
     } catch (error:any) {
-      console.error('Login failed:', error);
+      console.error('Login Error:', error); // Debugging line
       if (error.response) {
         setPopupMessage(error.response.data.message || 'Login failed.');
       } else {
