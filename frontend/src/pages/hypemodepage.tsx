@@ -153,7 +153,7 @@ const HypeModeProfile = () => {
         username,
         email,
         avatar,
-        dob: "20192020"
+        dob: "--------"
       });
 
       const token = res.data.token;
