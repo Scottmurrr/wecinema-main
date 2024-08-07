@@ -3,9 +3,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { Layout } from "../components";
 import { useNavigate } from 'react-router-dom';
-import { getAuth, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { googleProvider } from "./firebase";
-
+import { GoogleLogin } from 'react-google-login';
 
 const MainContainer = styled.div`
   display: flex;
@@ -137,7 +135,6 @@ const Overlay = styled.div`
   z-index: 999;
 `;
 
-
 const HypeModeProfile = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -149,7 +146,7 @@ const HypeModeProfile = () => {
   const [password, setPassword] = useState('');
   const [userId, setUserId] = useState('');
 
-  const registerUser = async (username:string, email:string, avatar:string, callback:any) => {
+  const registerUser = async (username:any, email:any, avatar:any, callback:any) => {
     try {
       const res = await axios.post('https://wecinema-main-vcam.onrender.com/user/signup', {
         username,
@@ -204,11 +201,11 @@ const HypeModeProfile = () => {
     }
   };
 
-  const onLoginSuccess = async (user:any) => {
-    const profile = user.providerData[0];
+  const onLoginSuccess = async (response:any) => {
+    const profile = response.profileObj;
     const email = profile.email;
-    const username = profile.displayName;
-    const avatar = profile.photoURL;
+    const username = profile.name;
+    const avatar = profile.imageUrl;
 
     try {
       const callback = () => navigate('/payment', { state: { subscriptionType: selectedSubscription, amount: selectedSubscription === 'user' ? 5 : 10, userId } });
@@ -219,8 +216,8 @@ const HypeModeProfile = () => {
         await loginUser(email, callback);
       }
     } catch (error) {
-      console.error('Failed to get Firebase token:', error);
-      setPopupMessage('Failed to get Firebase token.. Please try again.');
+      console.error('Failed to get token:', error);
+      setPopupMessage('Failed to get token.. Please try again.');
       setShowPopup(true);
     }
   };
@@ -231,67 +228,35 @@ const HypeModeProfile = () => {
     setShowPopup(true);
   };
 
-  const handleGoogleLogin = async () => {
-    const auth = getAuth();
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      await onLoginSuccess(user);
-    } catch (error) {
-      onLoginFailure(error);
-    }
+  const handleGoogleLogin = (response:any) => {
+    onLoginSuccess(response);
   };
 
-  const handleGoogleLogout = async () => {
-    const auth = getAuth();
-    try {
-      await signOut(auth);
-      setIsLoggedIn(false);
-      setPopupMessage('Logout successful.');
-      setShowPopup(true);
-    } catch (error) {
-      console.error('Logout failed:', error);
-      setPopupMessage('Logout failed. Please try again.');
-      setShowPopup(true);
-    }
-  };
+ 
 
   const handleEmailSignup = async () => {
-    const auth = getAuth();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await onLoginSuccess(user);
-    } catch (error:any) {
+      // Replace this with your own email signup logic
+      setPopupMessage('Email signup not implemented.');
+      setShowPopup(true);
+    } catch (error) {
       console.error('Email signup failed:', error);
-      if (error.code === 'auth/email-already-in-use') {
-        setPopupMessage('Email already in use. Please try logging in.');
-      } else {
-        setPopupMessage('Email signup failed. Please try again.');
-      }
+      setPopupMessage('Email signup failed. Please try again.');
       setShowPopup(true);
     }
   };
-  
+
   const handleEmailLogin = async () => {
-    const auth = getAuth();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      await onLoginSuccess(user);
-    } catch (error:any) {
+      // Replace this with your own email login logic
+      setPopupMessage('Email login not implemented.');
+      setShowPopup(true);
+    } catch (error) {
       console.error('Email login failed:', error);
-      if (error.code === 'auth/user-not-found') {
-        setPopupMessage('No user found with this email. Please sign up.');
-      } else if (error.code === 'auth/wrong-password') {
-        setPopupMessage('Incorrect password. Please try again.');
-      } else {
-        setPopupMessage('Email login failed. Please try again.');
-      }
+      setPopupMessage('Email login failed. Please try again.');
       setShowPopup(true);
     }
   };
-  
 
   const closePopup = () => {
     setShowPopup(false);
@@ -320,8 +285,7 @@ const HypeModeProfile = () => {
           {isLoggedIn ? (
             <SubscriptionContainer>
               <SubscriptionBox>
-                <Title>Logout</Title>
-                <Button onClick={handleGoogleLogout}>Logout</Button>
+              
               </SubscriptionBox>
             </SubscriptionContainer>
           ) : (
@@ -329,12 +293,24 @@ const HypeModeProfile = () => {
               <SubscriptionBox onClick={() => handleSubscriptionClick('user')}>
                 <Title>User Subscription</Title>
                 <Description>$5 a month to buy and sell films and scripts</Description>
-                <Button onClick={handleGoogleLogin}>{isSignup ? "Sign up with Google" : "Sign in with Google"}</Button>
+                <GoogleLogin
+                  clientId="854144808645-t4jd10ehpngjnfvki8mcuq7q0uvr2kjo.apps.googleusercontent.com"
+                  buttonText={isSignup ? "Sign up with Google" : "Sign in with Google"}
+                  onSuccess={handleGoogleLogin}
+                  onFailure={onLoginFailure}
+                  cookiePolicy={'single_host_origin'}
+                />
               </SubscriptionBox>
               <SubscriptionBox onClick={() => handleSubscriptionClick('studio')}>
                 <Title>Studio Subscription</Title>
                 <Description>$10 a month to buy and sell, get early access to new features</Description>
-                <Button onClick={handleGoogleLogin}>{isSignup ? "Sign up with Google" : "Sign in with Google"}</Button>
+                <GoogleLogin
+                  clientId="YOUR_GOOGLE_CLIENT_ID"
+                  buttonText={isSignup ? "Sign up with Google" : "Sign in with Google"}
+                  onSuccess={handleGoogleLogin}
+                  onFailure={onLoginFailure}
+                  cookiePolicy={'single_host_origin'}
+                />
               </SubscriptionBox>
               <SubscriptionBox>
                 <h3>{isSignup ? 'Register' : 'Login'} with Email</h3>
@@ -372,5 +348,3 @@ const HypeModeProfile = () => {
 };
 
 export default HypeModeProfile;
-
-
