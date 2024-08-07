@@ -59,7 +59,7 @@ const Chat = () => {
       setOrders(chatOrders);
       setIsLoading(false);
     }, (error) => {
-      console.error("Error fetching chat data:", error);
+      console.error("Error fetching chat data.:", error);
       setIsLoading(false);
     });
   }, [chatId]);
