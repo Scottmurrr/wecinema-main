@@ -99,7 +99,7 @@ const TransactionPopup: React.FC<TransactionPopupProps> = ({ message, onClose, i
 
 const PaymentComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // Import and initialize useNavigate
+  const navigate = useNavigate(); // Initialize useNavigate
   const { subscriptionType, amount } = location.state as { subscriptionType: string, amount: number };
 
   const [showPopup, setShowPopup] = useState(false);
@@ -108,6 +108,7 @@ const PaymentComponent = () => {
   const [userHasPaid, setUserHasPaid] = useState(false);
   const [setLoading] = useState<any>({});
   const [setUser] = useState<any>({});
+  const [redirect, setRedirect] = useState(false); // New state for redirect
 
   const token = localStorage.getItem("token") || null;
   let userId = null;
@@ -169,6 +170,12 @@ const PaymentComponent = () => {
     checkUserPaymentStatus();
   }, [userId]);
 
+  useEffect(() => {
+    if (redirect) {
+      navigate('/home');
+    }
+  }, [redirect, navigate]); // Redirect when the state changes
+
   const handlePaymentSuccess = async (details:any) => {
     try {
       console.log('Payment details:', details);
@@ -193,11 +200,11 @@ const PaymentComponent = () => {
       setShowPopup(true);
       setUserHasPaid(true);
       toast.success('Transaction successful! Redirecting to profile...');
-      
-      // Navigate to home page after 2 seconds to give time for popup
+
+      // Set redirect to true after showing the popup
       setTimeout(() => {
-        navigate('/home');
-      }, 2000);
+        setRedirect(true);
+      }, 2000); // Adjust the delay to match your popup display time
 
     } catch (error) {
       console.error('Failed to save transaction:', error);
