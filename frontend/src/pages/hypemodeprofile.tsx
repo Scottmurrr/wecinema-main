@@ -42,7 +42,7 @@ const GenrePage: React.FC = () => {
 
   useEffect(() => {
     if (!userId) {
-      console.error('User ID is not defined.');
+      console.error('User ID is not defined..');
       return;
     }
 
