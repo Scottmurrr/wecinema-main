@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout } from "../components";
 import styled from 'styled-components';
 import axios from 'axios';
 import { decodeToken } from "../utilities/helperfFunction";
-import { getRequest } from "../api"; // Assuming getRequest is used for fetching data
+import { getRequest } from "../api";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import PayPalButtonWrapper from './PayPalButtonWrapper'; // Import updated PayPalButtonWrapper
+import PayPalButtonWrapper from './PayPalButtonWrapper';
 
 const Container = styled.div`
   display: flex;
@@ -99,6 +99,7 @@ const TransactionPopup: React.FC<TransactionPopupProps> = ({ message, onClose, i
 
 const PaymentComponent = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Import and initialize useNavigate
   const { subscriptionType, amount } = location.state as { subscriptionType: string, amount: number };
 
   const [showPopup, setShowPopup] = useState(false);
@@ -108,7 +109,6 @@ const PaymentComponent = () => {
   const [setLoading] = useState<any>({});
   const [setUser] = useState<any>({});
 
-  // Extract data from token
   const token = localStorage.getItem("token") || null;
   let userId = null;
   let username = null;
@@ -147,14 +147,12 @@ const PaymentComponent = () => {
         const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
         const { hasPaid, lastPaymentDate } = response.data;
 
-        // Check if the subscription has expired
         const today:any = new Date();
         const lastPayment:any = new Date(lastPaymentDate);
         const diffTime = Math.abs(today - lastPayment);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays > 30) {
-          // Subscription expired
           setUserHasPaid(false);
           await axios.post(`https://wecinema-main-vcam.onrender.com/user/update-payment-status`, { userId, hasPaid: false });
           setPopupMessage('Your subscription has expired. Please renew to continue.');
@@ -196,6 +194,11 @@ const PaymentComponent = () => {
       setUserHasPaid(true);
       toast.success('Transaction successful! Redirecting to profile...');
       
+      // Navigate to home page after 2 seconds to give time for popup
+      setTimeout(() => {
+        navigate('/home');
+      }, 2000);
+
     } catch (error) {
       console.error('Failed to save transaction:', error);
       handlePaymentError('Failed to save transaction. Please try again.');
@@ -206,7 +209,7 @@ const PaymentComponent = () => {
     setPopupMessage(message);
     setIsError(true);
     setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 3000); // Hide the popup after 3 seconds
+    setTimeout(() => setShowPopup(false), 3000);
   };
 
   return (
