@@ -7,20 +7,10 @@ import { getRequest } from "../api";
 import { decodeToken } from "../utilities/helperfFunction";
 import Modal from 'react-modal';
 import axios from 'axios';
-import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push, serverTimestamp } from 'firebase/database'
+import { appp } from "./firebase";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBFFVP4F_tq9yfgra1szbT1yWFh_SCCGMg",
-  authDomain: "wecinema-5b6a4.firebaseapp.com",
-  projectId: "wecinema-5b6a4",
-  storageBucket: "wecinema-5b6a4.appspot.com",
-  messagingSenderId: "962978250768",
-  appId: "1:962978250768:web:21d326bc46b6e1874bca95",
-  measurementId: "G-Y1ZC282HZK"
-};
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const database = getDatabase(appp);
 
 const GenrePage: React.FC = () => {
   const [setLoading] = useState<any>({});
