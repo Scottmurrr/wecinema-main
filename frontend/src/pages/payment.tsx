@@ -147,7 +147,10 @@ const PaymentComponent = () => {
       try {
         const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
         const { hasPaid, lastPaymentDate } = response.data;
-
+        if(hasPaid) {
+        setRedirect(true);
+          
+        }
         const today:any = new Date();
         const lastPayment:any = new Date(lastPaymentDate);
         const diffTime = Math.abs(today - lastPayment);

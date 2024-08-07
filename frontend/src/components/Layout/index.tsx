@@ -16,6 +16,8 @@ import { RiMovie2Line } from "react-icons/ri";
 import { MdOutlineDescription } from "react-icons/md"
 import { BiCameraMovie } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
+import { RiCustomerService2Line } from "react-icons/ri";
+
 
 export const theme = [
 	"Love",
@@ -196,6 +198,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 										expanded ? "Upload scripts" : "Add Scripts"
 									}`}</span>
 								</Link>
+								
 								<Link
 									to={"/user/" + decodedToken?.userId}
 									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
@@ -211,6 +214,20 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 									>
 										Profile
 									</Link>
+								</Link>
+								<Link
+									to="/customersupport"
+									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
+										expanded
+											? ""
+											: "flex-col justify-center text-xs gap-1 specific"
+									}`}
+									
+								>
+									<RiCustomerService2Line size="20" />
+									<span className="text-sm ">{`${
+										expanded ? "Support" : ""
+									}`}</span>
 								</Link>
 							</ul>
 						</nav>
@@ -296,20 +313,18 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 						</nav>
 						<nav className="container mx-auto  items-center justify-between p-2 my-3 ">
 							<ul className="border-b  w-full border-gray-200 pb-4 ">
-								<li
-									onClick={() => handleType("login")}
-									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
-								>
-									<FaSignInAlt size="16" className="hover:text-green-500" />
-									Sign In
-								</li>
-								<li
-									onClick={() => handleType("register")}
-									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
-								>
-									<FaSignOutAlt size="16" className="hover:text-green-500" />
-									Sign Up
-								</li>
+							{!decodedToken && (
+									<>
+										<Link to="/signup" className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${expanded ? "" : "flex-col justify-center text-xs gap-1 specific"}`}>
+											<FaSignInAlt size="20" />
+											<span className="text-sm">Sign Up</span>
+										</Link>
+										<Link to="/signin" className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${expanded ? "" : "flex-col justify-center text-xs gap-1 specific"}`}>
+											<FaSignInAlt size="20" />
+											<span className="text-sm">Sign In</span>
+										</Link>
+									</>
+								)}
 								<li
 									onClick={() => handleType("logout")}
 									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
