@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { googleProvider } from "./firebase";
 
-
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -137,7 +136,6 @@ const Overlay = styled.div`
   z-index: 999;
 `;
 
-
 const HypeModeProfile = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -162,15 +160,19 @@ const HypeModeProfile = () => {
       const userId = res.data.id;
 
       if (token) {
-        setPopupMessage('Registration successful and logged in.!');
+        setPopupMessage('Registration successful and logged in!');
         setIsLoggedIn(true);
         setUserId(userId);
         setShowPopup(true);
-        if (callback) callback();
+
+        setTimeout(() => {
+          setShowPopup(false);
+          if (callback) callback();
+        }, 2000); // Show popup for 2 seconds before executing the callback
       }
     } catch (error:any) {
       if (error.response && error.response.data && error.response.data.error === 'Email already exists.') {
-        setPopupMessage('Email already exists..');
+        setPopupMessage('Email already exists.');
       } else {
         setPopupMessage('Registration failed. Please try again.');
       }
@@ -220,7 +222,7 @@ const HypeModeProfile = () => {
       }
     } catch (error) {
       console.error('Failed to get Firebase token:', error);
-      setPopupMessage('Failed to get Firebase token.. Please try again.');
+      setPopupMessage('Failed to get Firebase token. Please try again.');
       setShowPopup(true);
     }
   };
@@ -292,7 +294,6 @@ const HypeModeProfile = () => {
     }
   };
   
-
   const closePopup = () => {
     setShowPopup(false);
   };
@@ -372,5 +373,3 @@ const HypeModeProfile = () => {
 };
 
 export default HypeModeProfile;
-
-
