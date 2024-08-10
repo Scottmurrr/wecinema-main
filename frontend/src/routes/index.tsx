@@ -12,6 +12,7 @@ import {
 	RatingPage,
 	CustomerSupportPage,
 	PaymentComponent,
+	PrivacyPolicy,
 	ChatPage,
 	ThemePage,
 	SearchPage,
@@ -39,6 +40,8 @@ const Router: React.FC = () => {
 
 				<Route path="/videoeditor" element={<VideoEditorPage />} />
 				<Route path="/customersupport" element={<CustomerSupportPage />} />
+				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
 
 
 			</Routes>

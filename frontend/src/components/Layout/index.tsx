@@ -142,6 +142,8 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 										Home
 									</Link>
 								</Link>
+							{!decodedToken && (
+
 								<Link
 									to="/hypemode"
 									className={`duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
@@ -155,7 +157,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 										Hype mode
 									</Link>
 								</Link>
-
+							)}
 								<Link
 									to="/videoeditor"
 									className={`duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${

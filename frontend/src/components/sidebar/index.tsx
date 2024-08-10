@@ -16,7 +16,7 @@ import { FaUser } from "react-icons/fa";
 import { FaSignOutAlt } from "react-icons/fa";
 import { RiCustomerService2Line } from "react-icons/ri";
 import axios from 'axios';
-
+import { MdOutlinePrivacyTip } from "react-icons/md"
 interface SidebarProps {
   expand: boolean;
   darkMode: boolean;
@@ -264,6 +264,19 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 <RiCustomerService2Line size="20" />
                 <span className="text-sm">Support</span>
+              </Link>
+              <Link
+                to="/privacy-policy"
+                className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+                  expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+                } ${
+                  window.location.pathname === "/privacy-policy"
+                    ? "active-button"
+                    : ""
+                }`}
+              >
+                <MdOutlinePrivacyTip size="20" />
+                <span className="text-sm">Privacy</span>
               </Link>
         </ul>
       </nav>
