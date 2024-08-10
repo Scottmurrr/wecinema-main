@@ -15,6 +15,7 @@ admin.initializeApp({
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN
   }),
   databaseURL: "https://your-database-name.firebaseio.com"
+  
 });
 
 module.exports = admin;
