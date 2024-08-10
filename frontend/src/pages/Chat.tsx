@@ -320,6 +320,7 @@ const styles: { [key: string]: CSSProperties } = {
     color: '#fff',
     cursor: 'pointer',
     marginBottom: '10px',  // Adjust margin for spacing
+    marginRight: '10px', 
   },
   createOfferButton: {
     padding: '10px 15px',
