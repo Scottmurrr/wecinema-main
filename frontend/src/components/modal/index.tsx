@@ -66,7 +66,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 			
 			// Check if user has paid
 			const checkUserPaymentStatus = async () => {
-				if (decoded && decoded.userId) {
+				if (decoded.userId) {
 					try {
 						const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${decoded.userId}`);
 						setHasPaid(response.data.hasPaid);
