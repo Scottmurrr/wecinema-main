@@ -10,7 +10,7 @@ interface PayPalButtonWrapperProps {
 
 const PayPalButtonWrapper: React.FC<PayPalButtonWrapperProps> = ({ amount, userId, onSuccess, onError }) => {
   return (
-    <PayPalScriptProvider options={{ "clientId": "ASCL0841V8uRpAaUEiOHiRagfkbnWi_W_x1EEfBI6jDaG9L0AL-CBRd3kR-QQ3Q0-LmPlWjq0Wu31sMW", "currency": "USD" }}>
+    <PayPalScriptProvider options={{ "clientId": "AWW8_KhVa-LMZa721by4DuOBiZ2BO74XPEYzGQ3nkteNmJuzf1uCZXF6EWS0a-EReUi0L-DFloMlFAdw", "currency": "USD" }}>
       <PayPalButtons
         style={{ layout: 'vertical' }}
         createOrder={async (_, actions) => {
