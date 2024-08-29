@@ -16,7 +16,7 @@ const PayPalButtonWrapper: React.FC<PayPalButtonWrapperProps> = ({ amount, userI
         createOrder={async (_, actions) => {
           try {
             if (!actions.order) {
-              throw new Error("Order actions are undefined.");
+              throw new Error("Order actions are undefined..");
             }
             // Create Order
             const orderId = await actions.order.create({
