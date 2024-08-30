@@ -9,7 +9,7 @@ const links = [
 ];
 
 const generateSitemap = async () => {
-  const stream = new SitemapStream({ hostname: 'https://weccinema.co' });
+  const stream = new SitemapStream({ hostname: 'https://wecinema.co' });
   const writeStream = createWriteStream('src/assets/public/sitemap.xml');
 
   streamToPromise(links.map(link => stream.write(link)))
