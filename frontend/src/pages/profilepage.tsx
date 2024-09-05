@@ -33,11 +33,11 @@ const GenrePage: React.FC = () => {
             try {
                 const result: any = await getRequest("/user/" + id, setLoading);
                 setUser(result);
-                const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${id}`);
+                const response = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${id}`);
                 setUserHasPaid(response.data.hasPaid);
                 const tokenData = decodeToken(token);
                 if (tokenData) {
-                    const currentUserResponse = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${tokenData.userId}`);
+                    const currentUserResponse = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${tokenData.userId}`);
                     setCurrentUserHasPaid(currentUserResponse.data.hasPaid);
                 }
                 setFormData({ username: result.username, dob: result.dob });

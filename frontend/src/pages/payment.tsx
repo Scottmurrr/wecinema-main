@@ -145,7 +145,7 @@ const PaymentComponent = () => {
 
     const checkUserPaymentStatus = async () => {
       try {
-        const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
+        const response = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${userId}`);
         const { hasPaid, lastPaymentDate } = response.data;
         if(hasPaid) {
         setRedirect(true);
@@ -158,7 +158,7 @@ const PaymentComponent = () => {
 
         if (diffDays > 30) {
           setUserHasPaid(false);
-          await axios.post(`https://wecinema-main-vcam.onrender.com/user/update-payment-status`, { userId, hasPaid: false });
+          await axios.post(`https://wecinema-main.vercel.app/user/update-payment-status`, { userId, hasPaid: false });
           setPopupMessage('Your subscription has expired. Please renew to continue.');
           setIsError(true);
           setShowPopup(true);
@@ -187,7 +187,7 @@ const PaymentComponent = () => {
         throw new Error('Incomplete transaction details');
       }
 
-      const response = await axios.post('https://wecinema-main-vcam.onrender.com/user/save-transaction', {
+      const response = await axios.post('https://wecinema-main.vercel.app/user/save-transaction', {
         userId: userId,
         username: username,
         email: details.payer.email_address,

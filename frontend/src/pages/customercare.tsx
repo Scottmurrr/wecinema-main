@@ -20,7 +20,7 @@ const CustomerCarePage = () => {
   const handleSubmit = async (e:any) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/user/contact', formData);
+      await axios.post('https://wecinema-main.vercel.app/user/contact', formData);
       setIsSubmitted(true);
       setFormData({
         name: '',

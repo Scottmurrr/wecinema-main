@@ -47,7 +47,7 @@ const GenrePage: React.FC = () => {
 
     const checkUserPaymentStatus = async () => {
       try {
-        const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
+        const response = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${userId}`);
         const { hasPaid } = response.data;
         setUserHasPaid(hasPaid);
       } catch (error) {
@@ -57,7 +57,7 @@ const GenrePage: React.FC = () => {
 
     const fetchPaidUsers = async () => {
       try {
-        const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/paid-users`);
+        const response = await axios.get(`https://wecinema-main.vercel.app/user/paid-users`);
         const users = response.data;
         const filteredUsers = users.filter((paidUser: any) => paidUser._id !== userId);
         setPaidUsers(filteredUsers);
