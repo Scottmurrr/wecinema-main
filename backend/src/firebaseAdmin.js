@@ -3,7 +3,7 @@ const serviceAccount = require('../serviceAccount.json'); // Ensure this path is
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://your-database-name.firebaseio.com"
+  databaseURL: "https://your-database-name.firebaseio.com."
 });
 
 module.exports = admin;
