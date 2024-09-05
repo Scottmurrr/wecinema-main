@@ -125,17 +125,18 @@ const GenrePage: React.FC = () => {
         <Layout expand={false} hasHeader={false}>
             <div className="mt-12 px-4 sm:px-6 lg:px-8">
                 <div className="flex bg-grey justify-center w-full items-start my-0 mx-auto h-52 sm:h-80">
-                    <img
-                        className="w-full h-full object-cover"
-                        src="https://scontent.fskt1-1.fna.fbcdn.net/v/t39.30808-6/444216752_345821988607794_6329538777469570636_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=yMtHlBxL9RYQ7kNvgHi4jZX&_nc_ht=scontent.fskt1-1.fna&oh=00_AYAq7vaMutpP30lroJ21P79_6p1rDfnECE7vL8iyZtLt3g&oe=66B849CB"
-                        alt="Cover"
-                    />
+                <img
+                  className="w-full h-full object-cover"
+                    src="../assets/cover.jpg"
+                    alt="Cover"
+                />
+
                 </div>
                 <div className="flex flex-col sm:flex-row items-center mt-4">
                     <div className="w-full sm:w-auto sm:mr-4">
                         <img
                             className="rounded-full bg-white h-16 w-16 sm:h-36 sm:w-36 border-2 p-1 border-white"
-                            src="https://scontent.fskt1-1.fna.fbcdn.net/v/t39.30808-6/445203505_345868328603160_4760708580844450177_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=hkiV8mEfSNQQ7kNvgEB6XvB&_nc_ht=scontent.fskt1-1.fna&oh=00_AYDQKe6io9l6z51Lz0GU8elgrGiJpae6V6RXlxPgXuXNEg&oe=66B854A1"
+                            src="../assets/avator.jpg"
                             alt="Avatar"
                         />
                     </div>
