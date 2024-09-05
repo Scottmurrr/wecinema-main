@@ -7,6 +7,9 @@ import { decodeToken,  } from "../utilities/helperfFunction";
 import '../components/header/drowpdown.css';
 import { FaEdit } from 'react-icons/fa';
 import axios from 'axios';
+import cover from '.././assets/public/cover.jpg';
+import avatar from '.././assets/public/avatar.jpg';
+
 
 let token = localStorage.getItem("token") || null;
 
@@ -127,7 +130,7 @@ const GenrePage: React.FC = () => {
                 <div className="flex bg-grey justify-center w-full items-start my-0 mx-auto h-52 sm:h-80">
                 <img
                   className="w-full h-full object-cover"
-                    src="../assets/cover.jpg"
+                    src={cover}
                     alt="Cover"
                 />
 
@@ -136,7 +139,7 @@ const GenrePage: React.FC = () => {
                     <div className="w-full sm:w-auto sm:mr-4">
                         <img
                             className="rounded-full bg-white h-16 w-16 sm:h-36 sm:w-36 border-2 p-1 border-white"
-                            src="../assets/avator.jpg"
+                            src={avatar}
                             alt="Avatar"
                         />
                     </div>
