@@ -10,13 +10,15 @@ import { IoSunnyOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { Link, useNavigate } from "react-router-dom";
 import { TbVideoPlus } from "react-icons/tb";
-import { decodeToken } from "../../utilities/helperfFunction";
-import { toast } from "react-toastify";
-import { FaUser } from "react-icons/fa";
-import { FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
 import { RiCustomerService2Line } from "react-icons/ri";
-import axios from 'axios';
-import { MdOutlinePrivacyTip } from "react-icons/md"
+import { MdOutlinePrivacyTip } from "react-icons/md";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { decodeToken } from "../../utilities/helperfFunction";
+import '../../App.css'; // Import CSS 
+
+
 interface SidebarProps {
   expand: boolean;
   darkMode: boolean;
@@ -53,14 +55,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [tokenData]);
 
- 
-
   const fetchPaymentStatus = async (userId: any) => {
     try {
-      const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`);
+      const response = await axios.get(
+        `https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`
+      );
       setHasPaid(response.data.hasPaid);
     } catch (error) {
-      console.error('Payment status error:', error);
+      console.error("Payment status error:", error);
     }
   };
 
@@ -69,9 +71,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       event.preventDefault();
       toast.info("You are already subscribed to Hypemode!");
     } else if (!hasPaid) {
-        navigate("/hypemode");
+      navigate("/hypemode");
+    }
+  };
 
-    } 
+  const getActiveClass = (path: string) => {
+    return window.location.pathname === path ? "text-active" : "";
   };
 
   return (
@@ -88,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             to="/"
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-            } ${window.location.pathname === "/" ? "active-button" : ""}`}
+            } ${getActiveClass("/")}`}
             style={{ marginTop: "30px" }}
           >
             <IoMdHome size="20" />
@@ -99,9 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={handleHypemodeClick}
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-            } ${
-              window.location.pathname === "/hypemode" ? "active-button" : ""
-            }`}
+            } ${getActiveClass("/hypemode")}`}
           >
             <RiMovie2Line size="20" />
             <span className="text-sm">Hype mode</span>
@@ -110,9 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             to="/videoeditor"
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-            } ${
-              window.location.pathname === "/videoeditor" ? "active-button" : ""
-            }`}
+            } ${getActiveClass("/videoeditor")}`}
           >
             <TbVideoPlus size="20" />
             <span className="text-sm">Video Editor</span>
@@ -120,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-            } ${window.location.pathname === "/upload" ? "active-button" : ""}`}
+            } ${getActiveClass("/upload")}`}
             onClick={toggleUploadModal}
           >
             <BiCameraMovie size="20" />
@@ -131,11 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-            } ${
-              window.location.pathname === "/uploadscripts"
-                ? "active-button"
-                : ""
-            }`}
+            } ${getActiveClass("/uploadscripts")}`}
             onClick={toggleUploadScriptModal}
           >
             <MdOutlineDescription size="20" />
@@ -153,11 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             }}
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-            } ${
-              window.location.pathname === `/user/${tokenData?.userId}`
-                ? "active-button"
-                : ""
-            }`}
+            } ${getActiveClass(`/user/${tokenData?.userId}`)}`}
           >
             <CgProfile size="20" />
             <span className="text-sm">Profile</span>
@@ -173,9 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div
             className={`flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               darkMode ? "text-active" : ""
-            } ${expand ? "" : "flex-col justify-center text-xs gap-1 specific"} ${
-              darkMode ? "active-button" : ""
-            }`}
+            } ${expand ? "" : "flex-col justify-center text-xs gap-1 specific"}`}
             onClick={setDarkMode}
           >
             <FaMoon size="15" />
@@ -186,9 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div
             className={`flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               !darkMode ? "text-active" : ""
-            } ${expand ? "" : "flex-col justify-center text-xs gap-1 specific"} ${
-              !darkMode ? "active-button" : ""
-            }`}
+            } ${expand ? "" : "flex-col justify-center text-xs gap-1 specific"}`}
             onClick={setLightMode}
           >
             <IoSunnyOutline size="15" />
@@ -201,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 to="/"
                 className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
                   expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-                } ${window.location.pathname === "/user" ? "active-button" : ""}`}
+                } ${getActiveClass("/user")}`}
               >
                 <FaUser size="20" />
                 <span className="text-sm">{isLoggedIn.username}</span>
@@ -209,9 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <div
                 className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
                   expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-                } ${
-                  window.location.pathname === "/signout" ? "active-button" : ""
-                }`}
+                } ${getActiveClass("/signout")}`}
                 onClick={toggleSignoutModal}
               >
                 <FaSignOutAlt size="20" />
@@ -225,9 +212,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <div
                 className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
                   expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-                } ${
-                  window.location.pathname === "/signin" ? "active-button" : ""
-                }`}
+                } ${getActiveClass("/signin")}`}
                 onClick={toggleSigninModal}
               >
                 <LiaSignInAltSolid size="20" />
@@ -238,9 +223,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <div
                 className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
                   expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-                } ${
-                  window.location.pathname === "/signup" ? "active-button" : ""
-                }`}
+                } ${getActiveClass("/signup")}`}
                 onClick={toggleSignupModal}
               >
                 <HiUserAdd size="20" />
@@ -248,36 +231,26 @@ const Sidebar: React.FC<SidebarProps> = ({
                   expand ? "Sign up" : "Sign up"
                 }`}</span>
               </div>
-              
             </>
-            
           )}
           <Link
-                to="/customersupport"
-                className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
-                  expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-                } ${
-                  window.location.pathname === "/customersupport"
-                    ? "active-button"
-                    : ""
-                }`}
-              >
-                <RiCustomerService2Line size="20" />
-                <span className="text-sm">Support</span>
-              </Link>
-              <Link
-                to="/privacy-policy"
-                className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
-                  expand ? "" : "flex-col justify-center text-xs gap-1 specific"
-                } ${
-                  window.location.pathname === "/privacy-policy"
-                    ? "active-button"
-                    : ""
-                }`}
-              >
-                <MdOutlinePrivacyTip size="20" />
-                <span className="text-sm">Privacy</span>
-              </Link>
+            to="/customersupport"
+            className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+              expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+            } ${getActiveClass("/customersupport")}`}
+          >
+            <RiCustomerService2Line size="20" />
+            <span className="text-sm">Support</span>
+          </Link>
+          <Link
+            to="/privacy-policy"
+            className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+              expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+            } ${getActiveClass("/privacy-policy")}`}
+          >
+            <MdOutlinePrivacyTip size="20" />
+            <span className="text-sm">Privacy</span>
+          </Link>
         </ul>
       </nav>
     </section>

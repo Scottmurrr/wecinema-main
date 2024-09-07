@@ -10,6 +10,7 @@ import {
 	truncateText,
 } from "../../utilities/helperfFunction";
 import { Skeleton } from "..";
+
 interface GalleryProps {
 	title?: string;
 	type?: string;
@@ -18,6 +19,7 @@ interface GalleryProps {
 	length?: number;
 	isFirst?: boolean;
 }
+
 const Gallery: React.FC<GalleryProps> = ({
 	title,
 	isFirst,
@@ -27,13 +29,11 @@ const Gallery: React.FC<GalleryProps> = ({
 	type,
 }) => {
 	const nav = useNavigate();
-
 	const [loading, setLoading] = useState<boolean>(false);
 	const [videos, setVideos] = useState<any>([]);
-	// const [hiddenVideos, setHiddenVideos] = useState<any>([]);
 
 	useEffect(() => {
-		let isMounted = true; // Flag to track if the component is mounted
+		let isMounted = true;
 
 		(async () => {
 			setLoading(true);
@@ -42,15 +42,13 @@ const Gallery: React.FC<GalleryProps> = ({
 				: await getRequest("video/all/" + data, setLoading);
 
 			if (isMounted && result) {
-				// Update state only if the component is still mounted
-				setVideos(result); // Assuming a `videos` state variable
+				setVideos(result);
 				setLoading(false);
 			}
 		})();
 
-		// Clean-up function
 		return () => {
-			isMounted = false; // Set the flag to false when the component unmounts
+			isMounted = false;
 		};
 	}, [category]);
 
@@ -59,34 +57,17 @@ const Gallery: React.FC<GalleryProps> = ({
 			category ? v.genre.includes(category) : v
 		);
 	};
-	// const handleHideVideo = async (videoId: string) => {
-	// 	try {
-	// 		await getRequest(`/video/hide/${videoId}`, setLoading);
-	// 		setHiddenVideos((prev: any) => [...prev, videoId]);
-	// 	} catch (error) {
-	// 		console.error("Error hiding video:", error);
-	// 	}
-	// };
-	
-	// const handleUnhideVideo = async (videoId: string) => {
-	// 	try {
-	// 		await getRequest(`/video/unhide/${videoId}`, setLoading);
-	// 		setHiddenVideos((prev: any) => prev.filter((id: string) => id !== videoId));
-	// 	} catch (error) {
-	// 		console.error("Error unhiding video:", error);
-	// 	}
-	// };
-	
+
 	const handleVideolick = (video: any) => {
 		nav(video.slug ?? "/video/" + generateSlug(video._id), {
 			state: video,
 		});
 		localStorage.setItem("video", JSON.stringify(video));
 	};
+
 	if (length === 5 && filteredVideo(category).length > 0) {
 		return (
 			<div
-				// style={{ minHeight: 280 }}
 				className={` ${
 					isFirst ? "mt-20" : ""
 				} z-1 relative p-2 flex flex-wrap border-b  border-blue-200 sm:mx-4 pb-4`}
@@ -106,33 +87,30 @@ const Gallery: React.FC<GalleryProps> = ({
 				</div>
 				<div className="flex flex-wrap w-full">
 					{filteredVideo(category).map((video: any, index: any) => (
-						// VideoStream
 						<div
 							key={index}
-							style={{ maxWidth: "20%" }}
+							style={{ maxWidth: "25%" }} // Increased maxWidth to 33%
 							className="cursor-pointer gallery relative flex-wrap  border-gray-200  w-full   p-2 "
 						>
 							<div
 								onClick={() => handleVideolick(video)}
 								className="thumbnail relative overflow-hidden"
+								style={{
+									height: "150px", // Adjusted height
+									borderRadius: "12px", // Rounded corners on top and bottom
+									overflow: "hidden",
+								}}
 							>
 								<VideoThumbnail
 									videoUrl={video.file}
-									//thumbnailHandler={(thumbnail: any) => console.log(thumbnail)}
-									className="border-gray-200 rounded-xl w-full"
+									className="border-gray-200 w-full h-full object-cover"
 								/>
-								{/* <img
-									className="border-gray-200 rounded-xl"
-									width="480"
-									height="121.41"
-									loading="lazy"
-									src={video?.author?.avatar}
-								/> */}
 							</div>
 							<div
 								className="footer flex-1 block"
-								onClick={() => {
-									nav("/user/" + video?.author?._id);
+								style={{
+									borderRadius: "0 0 15px 15px", // Rounded bottom corners
+									overflow: "hidden",
 								}}
 							>
 								<a href="#" className="inline-flex max-w-max overflow-hidden">
@@ -145,7 +123,7 @@ const Gallery: React.FC<GalleryProps> = ({
 										href="#"
 										className="flex w-full overflow-hidden relative items-center"
 									>
-										<div className="relative rounded-full w-32px  box-border flex-shrink-0 block">
+										<div className="relative rounded-full w-32px box-border flex-shrink-0 block">
 											<div
 												className="items-center rounded-full flex-shrink-0 justify-center bg-center bg-no-repeat bg-cover flex"
 												style={{
@@ -170,8 +148,7 @@ const Gallery: React.FC<GalleryProps> = ({
 											<div className="ml-2 w-full">
 												<span>
 													{formatDateAgo(video.createdAt ?? video.updatedAt)}
-													<BsDot className="inline-flex items-center" /> {video.views}
-													Views
+													<BsDot className="inline-flex items-center" /> {video.views} Views
 												</span>
 											</div>
 										</div>
@@ -184,10 +161,10 @@ const Gallery: React.FC<GalleryProps> = ({
 			</div>
 		);
 	}
+
 	if (length === 4 && filteredVideo(category).length > 0) {
 		return (
 			<div
-				// style={{ minHeight: 280 }}
 				className={` ${
 					isFirst ? "mt-20" : ""
 				} z-1 relative p-2 flex flex-wrap border-b  border-blue-200 sm:mx-4 pb-4`}
@@ -205,28 +182,32 @@ const Gallery: React.FC<GalleryProps> = ({
 				</div>
 				<div className="flex flex-wrap w-full">
 					{filteredVideo(category).map((video: any, index: any) => (
-						// VideoStream
 						<div
 							onClick={() => nav("/ls")}
 							key={index}
-							style={{ maxWidth: length === 4 ? "inherit" : "20%" }}
-							className="cursor-pointer gallery relative  border-gray-200 flex-wrap w-full   p-2 "
+							style={{ maxWidth: "25%" }} // Adjusted maxWidth to make it larger
+							className="cursor-pointer gallery relative  border-gray-200 flex-wrap w-full p-2 "
 						>
-							<div className="thumbnail relative overflow-hidden">
-								{/* <img
-									className="border-gray-200 rounded-xl"
-									width="480"
-									height="270"
-									loading="lazy"
-									src={video?.author?.avatar}
-								/> */}
+							<div
+								className="thumbnail relative overflow-hidden"
+								style={{
+									height: "150px", // Adjusted height
+									borderRadius: "12px", // Rounded corners on top and bottom
+									overflow: "hidden",
+								}}
+							>
 								<VideoThumbnail
 									videoUrl={video.file}
-									//thumbnailHandler={(thumbnail: any) => console.log(thumbnail)}
-									className="border-gray-200 rounded-xl"
+									className="border-gray-200 w-full h-full object-cover"
 								/>
 							</div>
-							<div className="footer flex-1 block">
+							<div
+								className="footer flex-1 block"
+								style={{
+									borderRadius: "0 0 15px 15px", // Rounded bottom corners
+									overflow: "hidden",
+								}}
+							>
 								<a href="#" className="inline-flex max-w-max overflow-hidden">
 									<h3 className="text-base font-semibold leading-5 my-2">
 										{truncateText(video.title, 60)}
@@ -237,7 +218,7 @@ const Gallery: React.FC<GalleryProps> = ({
 										href="#"
 										className="flex w-full overflow-hidden relative items-center"
 									>
-										<div className="relative rounded-full w-32px  box-border flex-shrink-0 block">
+										<div className="relative rounded-full w-32px box-border flex-shrink-0 block">
 											<div
 												className="items-center rounded-full flex-shrink-0 justify-center bg-center bg-no-repeat bg-cover flex"
 												style={{
@@ -245,13 +226,12 @@ const Gallery: React.FC<GalleryProps> = ({
 													height: 32,
 													backgroundImage: `url(${video?.author?.avatar})`,
 												}}
-												
 											></div>
 										</div>
 										<div style={{ fontSize: 13 }} className="w-full">
 											<div className="flex items-center ml-2 flex-grow">
 												<span className="overflow-hidden -webkit-box">
-													Fresh and Fit
+													{video?.author?.username}
 												</span>
 												<MdVerifiedUser
 													size="12"
@@ -261,9 +241,8 @@ const Gallery: React.FC<GalleryProps> = ({
 											</div>
 											<div className="ml-2 w-full">
 												<span>
-													9 hours ago{" "}
-													<BsDot className="inline-flex items-center" /> 155k
-													Views
+													{formatDateAgo(video.createdAt ?? video.updatedAt)}
+													<BsDot className="inline-flex items-center" /> {video.views} Views
 												</span>
 											</div>
 										</div>
@@ -276,11 +255,11 @@ const Gallery: React.FC<GalleryProps> = ({
 			</div>
 		);
 	}
-	if (videos.length === 0 && loading) {
+
+	if (loading) {
 		return (
 			<div
-				// style={{ minHeight: 280 }}
-				className={` ${
+				className={`${
 					isFirst ? "mt-5" : ""
 				} z-1 relative p-2 flex flex-wrap border-b overflow-hidden border-blue-200 sm:mx-4 pb-4`}
 			>
@@ -288,33 +267,20 @@ const Gallery: React.FC<GalleryProps> = ({
 					{Array(7)
 						.fill("")
 						.map((_, index: any) => (
-							// VildeoStream
 							<Skeleton
 								key={index}
-								width={400}
-								style={{ maxWidth: "20%" }}
+								width={500} // Adjust the width of the Skeleton component
+								style={{ maxWidth: "50%" }}
 								className="cursor-pointer gallery relative flex-wrap  border-gray-200  w-full   p-2 "
 							/>
 						))}
 				</div>
 			</div>
 		);
-	} else if (
-		filteredVideo(category).length > 0 &&
-		type === "profile" &&
-		!loading
-	) {
-		return (
-			<div
-				// style={{ minHeight: 280 }}
-				className={` ${
-					isFirst ? "mt-5" : ""
-				} z-1 relative p-2 flex text-center flex-wrap border-b overflow-hidden border-blue-200 sm:mx-4 pb-4`}
-			>
-				<div className="flex flex-wrap w-full ">No Video Uploaded</div>
-			</div>
-		);
 	}
+
+
+	return <></>;
 };
 
 export default Gallery;

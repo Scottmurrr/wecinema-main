@@ -19,8 +19,8 @@ const SkeletonContainer = styled.div`
 `;
 
 const SkeletonImage = styled.div<any>`
-	height: 200px;
-	width:230px;
+	height: 240px;
+	width:280px;
 	border-radius: 6px;
 	background: #94856799;
 	margin-top: 10px;

@@ -18,7 +18,6 @@ export const themes = [
 	"Love", 
     "Redemption",
 	"Family",
-	"Death", 
 	"Opperession",
 	 "Survival", 
 	 "Revenge", 

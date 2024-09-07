@@ -41,10 +41,10 @@ button:disabled {
 	/* min-width: 87px !important; */
 }
 .text-dark {
-	color: #c8c6c6 !important;
+	color: #c8c8c6 !important;
 }
 .text-active {
-	color: green !important;
+	color: #ffb300 !important;
 }
 .text-light {
 	color: #1a202c !important;
@@ -208,4 +208,3 @@ nav img {
   }
   /* Correct */
 
-  
