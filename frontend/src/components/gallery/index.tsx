@@ -26,7 +26,7 @@ const Gallery: React.FC<GalleryProps> = ({
 	data,
 	length,
 	category,
-	type,
+	
 }) => {
 	const nav = useNavigate();
 	const [loading, setLoading] = useState<boolean>(false);
