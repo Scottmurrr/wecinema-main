@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, AxiosError, Method } from "axios";
 import { toast } from "react-toastify";
 
-const API_BASE_URL = "https://wecinema-main-vcam.onrender.com"; //"https://wecinema-main-vcam.onrender.com/";//http://localhost:3000/
+const API_BASE_URL = "https://wecinema-main.vercel.app/"; //"https://wecinema-main-vcam.onrender.com/";//http://localhost:3000/
 
 const api = axios.create({
     baseURL: API_BASE_URL,
