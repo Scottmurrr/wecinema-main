@@ -20,6 +20,7 @@ const scriptSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		isForSale:{ type: Boolean, default: false },
 	},
 	{
 		timestamps: true, // Add createdAt and updatedAt fields

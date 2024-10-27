@@ -8,6 +8,7 @@ const videoSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		isForSale:{ type: Boolean, default: false },
 		description: {
 			type: String,
 			// required: true,
@@ -18,7 +19,14 @@ const videoSchema = new Schema(
 		genre: {
 			type: Schema.Types.Mixed,
 			required: true,
+			
 		},
+		genreCounts: {
+			type: Map,
+			of: Number,
+			default: {}
+		},
+		
 		theme: {
 			type: Schema.Types.Mixed,
 			required: true,
@@ -43,6 +51,7 @@ const videoSchema = new Schema(
 			type: Boolean,
 			default: true,
 		},
+		totalLikes: { type: Number, default: 0 },
 		author: {
 			type: Schema.Types.ObjectId,
 			ref: "User",
@@ -59,6 +68,7 @@ const videoSchema = new Schema(
 				ref: "User",
 			},
 		],
+		globalLikes: { type: Number, default: 0 }, // Use Number instead of ObjectId
 		views: { type: Number, default: 0 }, // Use Number instead of ObjectId
 		
 		dislikes: [

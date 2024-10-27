@@ -6,6 +6,7 @@ const router = express.Router();
 const Videos = require("../models/videos");
 const Script = require("../models/script");
 
+
 // Import your User model (assuming you have a MongoDB User model)
 const User = require("../models/user");
 const { authenticateMiddleware, isValidObjectId } = require("../utils");
@@ -13,7 +14,7 @@ const { authenticateMiddleware, isValidObjectId } = require("../utils");
 // Route for creating a video
 router.post("/create", async (req, res) => {
     try {
-        const { title, description, genre, theme,rating, file, author, role, slug, status,users,hasPaid} = req.body;
+        const { title, description, genre, theme,rating,isForSale, file, author, role, slug, status,users,hasPaid} = req.body;
         // Check if the user exists
         const user = role !== "admin" ? await User.findById(author) : true;
         if (!user) {
@@ -33,6 +34,7 @@ router.post("/create", async (req, res) => {
             status: status ?? true,
             author, //req.user._id,
 			hasPaid,
+            isForSale,
         });
         res.status(201).json({ message: "Video created successfully" });
     } catch (error) {
@@ -102,6 +104,7 @@ router.patch("/publish/:id", async (req, res) => {
     }
 });
 
+
 // Route for unpublishing a video
 router.patch("/unpublish/:id", async (req, res) => {
     try {
@@ -160,6 +163,349 @@ router.patch("/unhide/:id", async (req, res) => {
         res.status(200).json({ message: "Video unhidden successfully", video });
     } catch (error) {
         console.error("Error unhiding video:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+// Like or Unlike a Video
+router.post('/like/:videoId', authenticateMiddleware, async (req, res) => {
+    const { action, userId } = req.body;
+    const videoId = req.params.videoId;
+
+    try {
+        const video = await Videos.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Assuming genre and theme are arrays, adjust based on your actual schema
+        const genres = Array.isArray(video.genre) ? video.genre : [video.genre];
+        const themes = Array.isArray(video.theme) ? video.theme : [video.theme];
+        const ratings = Array.isArray(video.rating) ? video.rating : [video.rating];
+
+
+        // Handle the like or dislike action
+        if (action === "like") {
+            await Videos.findByIdAndUpdate(videoId, {
+                $pull: { dislikes: userId },
+                $addToSet: { likes: userId },
+            });
+
+            // Update genreCounts and themeCounts for all videos with the same genres and themes
+            await Videos.updateMany(
+                { $or: [{ genre: { $in: genres } }, { theme: { $in: themes } }] },
+                {
+                    $inc: {
+                        ...genres.reduce((acc, genre) => {
+                            acc[`genreCounts.${genre}`] = 1; // Increment count for each genre
+                            return acc;
+                        }, {}),
+                        ...themes.reduce((acc, theme) => {
+                            acc[`themeCounts.${theme}`] = 1; // Increment count for each theme
+                            return acc;
+                        }, {}),
+                        ...ratings.reduce((acc, rating) => {
+                            acc[`ratingCounts.${rating}`] = 1; // Increment count for each theme
+                            return acc;
+                        }, {}),
+                    },
+                }
+            );
+
+        } else if (action === "dislike") {
+            await Videos.findByIdAndUpdate(videoId, {
+                $pull: { likes: userId },
+                $addToSet: { dislikes: userId },
+            });
+
+            // Update genreCounts and themeCounts for all videos with the same genres and themes
+            await Videos.updateMany(
+                { $or: [{ genre: { $in: genres } }, { theme: { $in: themes } }] },
+                {
+                    $inc: {
+                        ...genres.reduce((acc, genre) => {
+                            acc[`genreCounts.${genre}`] = -1; // Decrement count for each genre
+                            return acc;
+                        }, {}),
+                        ...themes.reduce((acc, theme) => {
+                            acc[`themeCounts.${theme}`] = -1; // Decrement count for each theme
+                            return acc;
+                        }, {}),
+                        ...ratings.reduce((acc, rating) => {
+                            acc[`ratingCounts.${rating}`] = -1; // Decrement count for each theme
+                            return acc;
+                        }, {}),
+                    },
+                }
+            );
+        }
+
+        res.status(200).json({ message: 'Action processed successfully' });
+    } catch (error) {
+        console.error("Error processing like/dislike:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
+// Dislike or Undislike a Video
+router.post('/dislike/:videoId', authenticateMiddleware, async (req, res) => {
+    const { action, userId } = req.body;
+    const videoId = req.params.videoId;
+
+    try {
+        console.log('User ID:', userId);
+        console.log('Video ID:', videoId);
+
+        const video = await Videos.findById(videoId);
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // If action is 'dislike', add the userId to dislikes and remove from likes if present
+        if (action === "dislike") {
+            await Videos.findByIdAndUpdate(videoId, {
+                $pull: { likes: userId },
+                $addToSet: { dislikes: userId },
+            });
+        } else if (action === "undislike") {
+            // If action is 'undislike', remove the userId from dislikes
+            await Videos.findByIdAndUpdate(videoId, {
+                $pull: { dislikes: userId },
+            });
+        }
+
+        // Fetch the updated video document to return
+        const updatedVideo = await Videos.findById(videoId);
+        res.json(updatedVideo);
+
+    } catch (error) {
+        console.error('Error disliking video:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+router.get('/genres/graph', async (req, res) => {
+    try {
+        const genreTrends = await Videos.aggregate([
+            // Ensure genre is an array, even for single genres
+            {
+                $project: {
+                    genre: {
+                        $cond: {
+                            if: { $isArray: "$genre" },
+                            then: "$genre",
+                            else: { $cond: { if: { $eq: ["$genre", null] }, then: [], else: ["$genre"] } }
+                        }
+                    },
+                    genreCounts: 1, // Include genreCounts field
+                    createdAt: 1 // Include createdAt for time-based grouping
+                }
+            },
+            { 
+                $unwind: '$genre' // Unwind the genre array
+            },
+            {
+                $group: {
+                    _id: {
+                        genre: '$genre',
+                        week: { 
+                            $isoWeekYear: '$createdAt', // Group by week of the year 
+                            // If you want to group by month instead of week:
+                            // month: { $month: '$createdAt' }
+                        }
+                    },
+                    count: { $sum: 1 }, // Count occurrences of each genre in the week
+                    genreCounts: { $first: "$genreCounts" } // Get the genreCounts for the first entry in each group
+                }
+            },
+            {
+                $sort: { 
+                    '_id.week': 1 // Sort by week
+                }
+            }
+        ]);
+
+        // Restructure data for easier charting
+        const chartData = {}; 
+        genreTrends.forEach(item => {
+            const { genre, week } = item._id;
+            if (!chartData[genre]) {
+                chartData[genre] = {};
+            }
+            chartData[genre][week] = {
+                count: item.count,
+                genreCounts: item.genreCounts
+            }; 
+        });
+
+        res.status(200).json(chartData);
+    } catch (error) {
+        console.error("Error fetching genre data:", error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+router.get('/themes/graph', async (req, res) => {
+    try {
+        const themeTrends = await Videos.aggregate([
+            // Ensure theme is an array, even for single themes
+            {
+                $project: {
+                    theme: {
+                        $cond: {
+                            if: { $isArray: "$theme" },
+                            then: "$theme",
+                            else: { $cond: { if: { $eq: ["$theme", null] }, then: [], else: ["$theme"] } }
+                        }
+                    },
+                    themeCounts: 1, // Include themeCounts field
+                    createdAt: 1 // Include createdAt for time-based grouping
+                }
+            },
+            { 
+                $unwind: '$theme' // Unwind the theme array
+            },
+            {
+                $group: {
+                    _id: {
+                        theme: '$theme',
+                        week: { 
+                            $isoWeekYear: '$createdAt', // Group by week of the year 
+                            // If you want to group by month instead of week:
+                            // month: { $month: '$createdAt' }
+                        }
+                    },
+                    count: { $sum: 1 }, // Count occurrences of each theme in the week
+                    themeCounts: { $first: "$themeCounts" } // Get the themeCounts for the first entry in each group
+                }
+            },
+            {
+                $sort: { 
+                    '_id.week': 1 // Sort by week
+                }
+            }
+        ]);
+
+        // Restructure data for easier charting
+        const chartData = {}; 
+        themeTrends.forEach(item => {
+            const { theme, week } = item._id;
+            if (!chartData[theme]) {
+                chartData[theme] = {};
+            }
+            chartData[theme][week] = {
+                count: item.count,
+                themeCounts: item.themeCounts
+            }; 
+        });
+
+        res.status(200).json(chartData);
+    } catch (error) {
+        console.error("Error fetching theme data:", error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.get('/ratings/graph', async (req, res) => {
+    try {
+        const ratingTrends = await Videos.aggregate([
+            {
+                $project: {
+                    rating: 1, // Project the rating field
+                    createdAt: 1, // Include createdAt for time-based grouping
+                    genre: 1 // Optionally include genre to group ratings by genre
+                }
+            },
+            // Optionally: Filter out videos with no ratings
+            {
+                $match: { rating: { $ne: null } }
+            },
+            {
+                $group: {
+                    _id: {
+                        rating: '$rating', // Group by genre (you can change this to theme or any other field)
+                        week: { 
+                            $isoWeekYear: '$createdAt' // Group by week of the year
+                            // To group by month instead, you can use:
+                            // month: { $month: '$createdAt' }
+                        }
+                    },
+                    averageRating: { $avg: '$rating' }, // Calculate average rating
+                    totalRatings: { $sum: 1 } // Count the number of ratings
+                }
+            },
+            {
+                $sort: { '_id.week': 1 } // Sort by week
+            }
+        ]);
+
+        // Restructure data for easier charting
+        const chartData = {};
+        ratingTrends.forEach(item => {
+            const { rating, week } = item._id;
+            if (!chartData[rating]) {
+                chartData[rating] = {};
+            }
+            chartData[rating][week] = {
+                averageRating: item.averageRating,
+                totalRatings: item.totalRatings
+            };
+        });
+
+        res.status(200).json(chartData);
+    } catch (error) {
+        console.error("Error fetching rating data:", error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Route to check if the user has liked/disliked a specific video
+router.get('/:videoId/like-status/:userId', async (req, res) => {
+  try {
+    const { videoId, userId } = req.params;
+
+    // Find the video by its ID
+    const video = await Videos.findById(videoId);
+
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Check if the user has liked the video
+    const isLiked = video.likes.includes(userId);
+    const isDisliked = video.dislikes.includes(userId);
+
+    // Return the like and dislike status
+    res.status(200).json({
+      isLiked,
+      isDisliked
+    });
+  } catch (error) {
+    console.error('Error checking like status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+  
+// Route for getting video likes
+router.get("/like/:id", async (req, res) => {
+    try {
+        const videoId = req.params.id;
+
+        // Check if video ID is valid
+        if (!mongoose.Types.ObjectId.isValid(videoId)) {
+            return res.status(400).json({ error: "Invalid video ID" });
+        }
+
+        const video = await Videos.findById(videoId).populate("likes", "username"); // Populate to get usernames of users who liked the video
+
+        if (!video) {
+            return res.status(404).json({ error: "Video not found" });
+        }
+
+        const numberOfLikes = video.likes.length;
+        res.json({ videoId, numberOfLikes, likes: video.likes });
+    } catch (error) {
+        console.error("Error getting video likes:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -446,8 +792,8 @@ router.delete("/delete/:id", async (req, res) => {
 //create Script
 router.post("/scripts", async (req, res) => {
 	try {
-		const { title, genre, script, author } = req.body;
-		const newScript = await Script.create({ title, genre, script, author });
+		const { title, genre, script, author,isForSale } = req.body;
+		const newScript = await Script.create({ title, genre, script, author,isForSale });
 		res.status(201).json(newScript);
 	} catch (error) {
 		console.error("Error creating script:", error);

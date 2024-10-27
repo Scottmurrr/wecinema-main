@@ -49,6 +49,14 @@ const isAdmin = (req, res, next) => {
 	// User is an admin, allow the request to proceed
 	next();
 };
+// Function to check if the ID is a valid ObjectId
+const isValidObject = (id) => {
+    // Check if the input is a valid ObjectId
+    if (!id || typeof id !== "string" || id.length !== 24) {
+        return false;
+    }
+    return mongoose.Types.ObjectId.isValid(id);
+};
 function isValidObjectId(id) {
 	if (!id) {
 		return false; // If id is null or undefined, it's not a valid ObjectId
@@ -65,4 +73,4 @@ function isValidObjectId(id) {
 	}
 }
 
-module.exports = { authenticateMiddleware, isValidObjectId, isAdmin };
+module.exports = { authenticateMiddleware, isValidObjectId,isValidObject, isAdmin };
