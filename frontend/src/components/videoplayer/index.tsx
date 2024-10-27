@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Modal from 'react-modal';
 import axios from 'axios';
+import '../videoplayer/index.css';
 
 const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   const [loading, setLoading] = useState(false);
@@ -16,9 +17,11 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   const [commentData, setCommentData] = useState<any>(video?.comments ?? []);
   const [isDisliked, setIsDisliked] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
-  let [videoLikesLength, setVideoLikesLength] = useState(video?.likes?.length ?? 0);
-  let [videoDislikesLength, setVideoDislikesLength] = useState(video?.dislikes?.length ?? 0);
+  const [videoLikesLength, setVideoLikesLength] = useState(video?.likes?.length ?? 0);
+  const [videoDislikesLength, setVideoDislikesLength] = useState(video?.dislikes?.length ?? 0);
   const [views, setViews] = useState(0); // State for video views
+  const [likes, setLikes] = useState(0); // State for video views
+
   const [userHasPaid, setUserHasPaid] = useState(false);
   const [currentUserHasPaid, setCurrentUserHasPaid] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -27,30 +30,43 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch like/dislike status
+        if (tokenData?.userId) {
+          const likeDislikeStatus: any = await getRequest(`/video/${video._id}/like-status/${tokenData.userId}`, setLoading);
+          setIsLiked(likeDislikeStatus.isLiked);
+          setIsDisliked(likeDislikeStatus.isDisliked);
+        }
+        
+        // Fetch other video data
         const result: any = await getRequest("/video/" + video._id, setLoading);
         setCommentData(result.comments);
-
+  
         const viewsResult: any = await getRequest(`/video/views/${video._id}`, setLoading);
         setViews(viewsResult.views);
-
-        const response = await axios.get(`http://localhost:3000/user/payment-status/${video.author._id}`);
+  
+        const likesResult: any = await getRequest(`/video/like/${video._id}`, setLoading);
+        setLikes(likesResult.likes);
+  
+        const response = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${video.author._id}`);
         setUserHasPaid(response.data.hasPaid);
-
+  
         if (tokenData) {
-          const currentUserResponse = await axios.get(`http://localhost:3000/user/payment-status/${tokenData.userId}`);
+          const currentUserResponse = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${tokenData.userId}`);
           setCurrentUserHasPaid(currentUserResponse.data.hasPaid);
         }
-
+  
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
+  
     fetchData();
   }, [loading, video._id, video.author._id, tokenData]);
+  
+  
 
   useEffect(() => {
-    if (!userHasPaid && currentUserHasPaid) {
+    if (userHasPaid && currentUserHasPaid) {
       setShowModal(true);
     }
   }, [userHasPaid, currentUserHasPaid]);
@@ -63,49 +79,64 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   const handleLikeClick = async () => {
     try {
       setLoading(true);
-      setIsLiked(!isLiked);
-      setIsDisliked(false);
-      // let payload = {
-      //   action: "like",
-      //   userId: tokenData?.userId,
-      // };
-      // const result: any = await putRequest(
-      //   "video/" + video._id,
-      //   payload,
-      //   setLoading,
-      //   "Video Liked!"
-      // );
-      setVideoLikesLength(isLiked ? videoLikesLength - 1 : videoLikesLength + 1);
+  
+      const newIsLiked = !isLiked;
+      const payload = {
+        userId: tokenData?.userId,
+        action: newIsLiked ? 'like' : 'unlike',
+      };
+  
+      // Optimistically update the UI
+      setIsLiked(newIsLiked);
+      setIsDisliked(false); // Reset dislike if the video is liked
+      setVideoLikesLength(newIsLiked ? videoLikesLength + 1 : videoLikesLength - 1);
+  
+      // Send request to the backend
+      await postRequest(`/video/like/${video._id}`, payload, setLoading);
+  
+      // Handle dislike state reset
+      if (isDisliked) {
+        setVideoDislikesLength(videoDislikesLength - 1);
+        setIsDisliked(false);
+      }
     } catch (error: any) {
       setLoading(false);
-      toast.error(error.message);
-      console.error("Post error:", error);
+      toast.error("Error liking the video");
+      console.error("Like error:", error);
     }
   };
-
+  
+  
+  
   const handleDislikeClick = async () => {
     try {
       setLoading(true);
-      setIsDisliked(!isDisliked);
-      setIsLiked(false);
-      // let payload = {
-      //   action: "dislike",
-      //   userId: tokenData?.userId,
-      // };
-      // const result: any = await putRequest(
-      //   "video/" + video._id,
-      //   payload,
-      //   setLoading,
-      //   "Video Disliked!"
-      // );
-      setVideoDislikesLength(isDisliked ? videoDislikesLength - 1 : videoDislikesLength + 1);
+      const newIsDisliked = !isDisliked;
+      setIsDisliked(newIsDisliked);
+      setIsLiked(false); // Reset like if the video is disliked
+  
+      const payload = {
+        userId: tokenData?.userId,
+        action: newIsDisliked ? 'dislike' : 'undislike',
+      };
+  
+      await postRequest(`/video/dislike/${video._id}`, payload, setLoading, "Video Disliked!");
+  
+      // Update dislike count in UI
+      setVideoDislikesLength(newIsDisliked ? videoDislikesLength + 1 : videoDislikesLength - 1);
+  
+      // Update like count if like was previously active
+      if (isLiked) {
+        setVideoLikesLength(videoLikesLength - 1);
+        setIsLiked(false); // Ensure like is turned off
+      }
     } catch (error: any) {
       setLoading(false);
       toast.error(error.message);
-      console.error("Post error:", error);
+      console.error("Dislike error:", error);
     }
   };
-
+  
   const handleFollowSubmit = async (action: string) => {
     try {
       setLoading(true);
@@ -290,26 +321,27 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
 
         {/* Like, Dislike, Bookmark, and Action Buttons */}
         <div className="sm:w-2/5 sm:mr-2 my-3 sm:my-0 text-right mt-2 sm:mt-0 overflow-auto flex gap-4 items-center">
-          <button
-            disabled={loading}
-            onClick={handleLikeClick}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-              isLiked ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            {isLiked ? <AiFillLike size="24" /> : <AiOutlineLike size="24" />}
-            {videoLikesLength}
-          </button>
-          <button
-            disabled={loading}
-            onClick={handleDislikeClick}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-              isDisliked ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            {isDisliked ? <AiFillDislike size="24" /> : <AiOutlineDislike size="24" />}
-            {videoDislikesLength}
-          </button>
+        <button
+  disabled={loading}
+  onClick={handleLikeClick}
+  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+    isLiked ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+  }`}
+>
+  {isLiked ? <AiFillLike size="24" /> : <AiOutlineLike size="24" />}
+  {videoLikesLength}
+</button>
+<button
+  disabled={loading}
+  onClick={handleDislikeClick}
+  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+    isDisliked ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+  }`}
+>
+  {isDisliked ? <AiFillDislike size="24" /> : <AiOutlineDislike size="24" />}
+  {videoDislikesLength}
+</button>
+
           <button
             onClick={toggleBookmark}
             className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${

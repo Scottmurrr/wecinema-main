@@ -377,3 +377,40 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+/* src/pages/TermsAndConditions.css */
+
+.terms-conditions {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+p {
+  margin: 10px 0;
+}
+
+.signatories {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.signatories div {
+  width: 45%;
+}

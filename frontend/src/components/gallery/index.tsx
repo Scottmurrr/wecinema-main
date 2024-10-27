@@ -26,7 +26,6 @@ const Gallery: React.FC<GalleryProps> = ({
 	data,
 	length,
 	category,
-	
 }) => {
 	const nav = useNavigate();
 	const [loading, setLoading] = useState<boolean>(false);
@@ -65,197 +64,6 @@ const Gallery: React.FC<GalleryProps> = ({
 		localStorage.setItem("video", JSON.stringify(video));
 	};
 
-	if (length === 5 && filteredVideo(category).length > 0) {
-		return (
-			<div
-				className={` ${
-					isFirst ? "mt-20" : ""
-				} z-1 relative p-2 flex flex-wrap border-b  border-blue-200 sm:mx-4 pb-4`}
-			>
-				<div className="mt-1 w-full sm:px-4 py-2 flex justify-between items-center">
-					<h2 className="text-l font-extrabold text-lg sm:text-xl">{title}</h2>
-					{filteredVideo(category).length > 6 && title && (
-						<a
-							href="#"
-							className={` ${
-								!title && "float-right"
-							} hover:bg-green-700 whitespace-nowrap hover:text-white hover:border-green-700 border border-green-700 py-1  rounded-xl px-4  cursor-pointer	`}
-						>
-							View all
-						</a>
-					)}
-				</div>
-				<div className="flex flex-wrap w-full">
-					{filteredVideo(category).map((video: any, index: any) => (
-						<div
-							key={index}
-							style={{ maxWidth: "25%" }} // Increased maxWidth to 33%
-							className="cursor-pointer gallery relative flex-wrap  border-gray-200  w-full   p-2 "
-						>
-							<div
-								onClick={() => handleVideolick(video)}
-								className="thumbnail relative overflow-hidden"
-								style={{
-									height: "150px", // Adjusted height
-									borderRadius: "12px", // Rounded corners on top and bottom
-									overflow: "hidden",
-								}}
-							>
-								<VideoThumbnail
-									videoUrl={video.file}
-									className="border-gray-200 w-full h-full object-cover"
-								/>
-							</div>
-							<div
-								className="footer flex-1 block"
-								style={{
-									borderRadius: "0 0 15px 15px", // Rounded bottom corners
-									overflow: "hidden",
-								}}
-							>
-								<a href="#" className="inline-flex max-w-max overflow-hidden">
-									<h3 className="text-base font-semibold leading-5 my-2">
-										{truncateText(video.title, 60)}
-									</h3>
-								</a>
-								<address className="flex items-center justify-between mt-8px">
-									<a
-										href="#"
-										className="flex w-full overflow-hidden relative items-center"
-									>
-										<div className="relative rounded-full w-32px box-border flex-shrink-0 block">
-											<div
-												className="items-center rounded-full flex-shrink-0 justify-center bg-center bg-no-repeat bg-cover flex"
-												style={{
-													width: 32,
-													height: 32,
-													backgroundImage: `url(${video?.author?.avatar})`,
-												}}
-												title={video?.author?.username}
-											></div>
-										</div>
-										<div style={{ fontSize: 13 }} className="w-full">
-											<div className="flex items-center ml-2 flex-grow">
-												<span className="overflow-hidden -webkit-box">
-													{video?.author?.username}
-												</span>
-												<MdVerifiedUser
-													size="12"
-													color="green"
-													className="flex-shrink-0 ml-2"
-												/>
-											</div>
-											<div className="ml-2 w-full">
-												<span>
-													{formatDateAgo(video.createdAt ?? video.updatedAt)}
-													<BsDot className="inline-flex items-center" /> {video.views} Views
-												</span>
-											</div>
-										</div>
-									</a>
-								</address>
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
-		);
-	}
-
-	if (length === 4 && filteredVideo(category).length > 0) {
-		return (
-			<div
-				className={` ${
-					isFirst ? "mt-20" : ""
-				} z-1 relative p-2 flex flex-wrap border-b  border-blue-200 sm:mx-4 pb-4`}
-			>
-				<div className="mt-1 w-full sm:px-4 py-2 flex justify-between items-center">
-					<h2 className="font-extrabold text-lg sm:text-xl">{title}</h2>
-					<a
-						href="#"
-						className={` ${
-							!title && "float-right"
-						} hover:bg-green-700 whitespace-nowrap hover:text-white hover:border-green-700 border border-green-700 py-1  rounded-xl px-4  cursor-pointer	`}
-					>
-						View all
-					</a>
-				</div>
-				<div className="flex flex-wrap w-full">
-					{filteredVideo(category).map((video: any, index: any) => (
-						<div
-							onClick={() => nav("/ls")}
-							key={index}
-							style={{ maxWidth: "25%" }} // Adjusted maxWidth to make it larger
-							className="cursor-pointer gallery relative  border-gray-200 flex-wrap w-full p-2 "
-						>
-							<div
-								className="thumbnail relative overflow-hidden"
-								style={{
-									height: "150px", // Adjusted height
-									borderRadius: "12px", // Rounded corners on top and bottom
-									overflow: "hidden",
-								}}
-							>
-								<VideoThumbnail
-									videoUrl={video.file}
-									className="border-gray-200 w-full h-full object-cover"
-								/>
-							</div>
-							<div
-								className="footer flex-1 block"
-								style={{
-									borderRadius: "0 0 15px 15px", // Rounded bottom corners
-									overflow: "hidden",
-								}}
-							>
-								<a href="#" className="inline-flex max-w-max overflow-hidden">
-									<h3 className="text-base font-semibold leading-5 my-2">
-										{truncateText(video.title, 60)}
-									</h3>
-								</a>
-								<address className="flex items-center justify-between mt-8px">
-									<a
-										href="#"
-										className="flex w-full overflow-hidden relative items-center"
-									>
-										<div className="relative rounded-full w-32px box-border flex-shrink-0 block">
-											<div
-												className="items-center rounded-full flex-shrink-0 justify-center bg-center bg-no-repeat bg-cover flex"
-												style={{
-													width: 32,
-													height: 32,
-													backgroundImage: `url(${video?.author?.avatar})`,
-												}}
-											></div>
-										</div>
-										<div style={{ fontSize: 13 }} className="w-full">
-											<div className="flex items-center ml-2 flex-grow">
-												<span className="overflow-hidden -webkit-box">
-													{video?.author?.username}
-												</span>
-												<MdVerifiedUser
-													size="12"
-													color="green"
-													className="flex-shrink-0 ml-2"
-												/>
-											</div>
-											<div className="ml-2 w-full">
-												<span>
-													{formatDateAgo(video.createdAt ?? video.updatedAt)}
-													<BsDot className="inline-flex items-center" /> {video.views} Views
-												</span>
-											</div>
-										</div>
-									</a>
-								</address>
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
-		);
-	}
-
 	if (loading) {
 		return (
 			<div
@@ -279,8 +87,103 @@ const Gallery: React.FC<GalleryProps> = ({
 		);
 	}
 
+	return (
+		<div
+			className={` ${
+				isFirst ? "mt-20" : ""
+			} z-1 relative p-2 flex flex-wrap border-b  border-blue-200 sm:mx-4 pb-4`}
+		>
+			<div className="mt-1 w-full sm:px-4 py-2 flex justify-between items-center">
+				<h2 className="font-extrabold text-lg sm:text-xl">{title}</h2>
+				<a
+					href="#"
+					className="hover:bg-green-700 whitespace-nowrap hover:text-white hover:border-green-700 border border-green-700 py-1  rounded-xl px-4  cursor-pointer"
+				>
+					View all
+				</a>
+			</div>
+			<div className="flex flex-wrap w-full">
+				{filteredVideo(category).map((video: any, index: any) => (
+					<div
+						key={index}
+						style={{ maxWidth: "25%" }} // Adjusted maxWidth to 25%
+						className="cursor-pointer gallery relative flex-wrap border-gray-200 w-full p-2"
+					>
+						<div
+							onClick={() => handleVideolick(video)}
+							className="thumbnail relative overflow-hidden"
+							style={{
+								height: "150px", // Adjusted height
+								borderRadius: "12px", // Rounded corners on top and bottom
+								overflow: "hidden",
+							}}
+						>
+							<VideoThumbnail
+								videoUrl={video.file}
+								className="border-gray-200 w-full h-full object-cover"
+							/>
 
-	return <></>;
+							{/* Conditionally render 'For Sale' label */}
+							{video.isForSale && (
+								<span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold py-1 px-2 rounded">
+									For Sale
+								</span>
+							)}
+						</div>
+						<div
+							className="footer flex-1 block"
+							style={{
+								borderRadius: "0 0 15px 15px", // Rounded bottom corners
+								overflow: "hidden",
+							}}
+						>
+							<a href="#" className="inline-flex max-w-max overflow-hidden">
+								<h3 className="text-base font-semibold leading-5 my-2">
+									{truncateText(video.title, 60)}
+								</h3>
+							</a>
+							<address className="flex items-center justify-between mt-8px">
+								<a
+									href="#"
+									className="flex w-full overflow-hidden relative items-center"
+								>
+									<div className="relative rounded-full w-32px box-border flex-shrink-0 block">
+										<div
+											className="items-center rounded-full flex-shrink-0 justify-center bg-center bg-no-repeat bg-cover flex"
+											style={{
+												width: 32,
+												height: 32,
+												backgroundImage: `url(${video?.author?.avatar})`,
+											}}
+										></div>
+									</div>
+									<div style={{ fontSize: 13 }} className="w-full">
+										<div className="flex items-center ml-2 flex-grow">
+											<span className="overflow-hidden -webkit-box">
+												{video?.author?.username}
+											</span>
+											<MdVerifiedUser
+												size="12"
+												color="green"
+												className="flex-shrink-0 ml-2"
+											/>
+										</div>
+										<div className="ml-2 w-full">
+											<span>
+												{formatDateAgo(video.createdAt ?? video.updatedAt)}
+												<BsDot className="inline-flex items-center" />{" "}
+												{video.views} Views
+											</span>
+										</div>
+									</div>
+								</a>
+							</address>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
 };
 
 export default Gallery;

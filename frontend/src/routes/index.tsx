@@ -16,9 +16,11 @@ import {
 	ChatPage,
 	ThemePage,
 	SearchPage,
+	TermsAndConditions,
 
 
 } from "../pages";
+
 
 const Router: React.FC = () => {
 	return (
@@ -41,6 +43,9 @@ const Router: React.FC = () => {
 				<Route path="/videoeditor" element={<VideoEditorPage />} />
 				<Route path="/customersupport" element={<CustomerSupportPage />} />
 				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+				<Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+
+
 
 
 

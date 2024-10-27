@@ -269,7 +269,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 								))}
 							</ul>
 						</nav> */}
-						<nav className="container mx-auto  items-center justify-between p-2 my-3">
+						<nav className="container mx-auto   items-center justify-between p-2 my-3">
 							<h2
 								className={`font-bold ${
 									expanded ? "ml-4" : "text-sm text-center ml-4"
@@ -357,13 +357,13 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 					}  bg-gray-200 w-full `}
 					style={{ marginLeft: `${expanded ? "16.8%" : "150px"}` }}
 				>
-					{hasHeader && (
+					{/* {hasHeader && (
 						<header
 							style={{
 								width: `${expanded && screenWidth > 1120 ? "83.3%" : "91.6%"}`,
 								marginTop: 25,
 							}}
-							className={`z-30 flex gap-2 p-3 hh bg-white fixed overflow-x-auto ${
+							className={`z-30 mt-10 flex gap-2 p-3 hh bg-white fixed overflow-x-auto ${
 								expanded && screenWidth > 1120 ? "" : "w-full"
 							} ${darkMode && "bg-dark"}`}
 						>
@@ -393,7 +393,7 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
                                     </li>
                                 ))}
 						</header>
-					)}
+					)} */}
 					<Modal type={type} authorized={!!token} show={modalShow} />
 					{children}
 					{/* //header */}

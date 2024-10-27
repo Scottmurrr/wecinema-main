@@ -18,7 +18,6 @@ import { toast } from "react-toastify";
 import { decodeToken } from "../../utilities/helperfFunction";
 import '../../App.css'; // Import CSS 
 
-
 interface SidebarProps {
   expand: boolean;
   darkMode: boolean;
@@ -140,6 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               expand ? "Upload scripts" : "Add Scripts"
             }`}</span>
           </div>
+    
           <Link
             to={tokenData ? `/user/${tokenData.userId}` : "#"}
             onClick={(event) => {
@@ -250,6 +250,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             <MdOutlinePrivacyTip size="20" />
             <span className="text-sm">Privacy</span>
+          </Link>
+          <Link
+            to="/terms-and-conditions"
+            className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+              expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+            } ${getActiveClass("/terms-and-conditions")}`}
+          >
+            <MdOutlineDescription size="20" />
+            <span className="text-sm">Terms and Conditions</span>
           </Link>
         </ul>
       </nav>

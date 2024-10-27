@@ -13,6 +13,9 @@ export { default as ThemePage } from "./theme";
 export { default as SearchPage } from "./search";
 export { default as PaymentComponent } from "./payment";
 export { default as PrivacyPolicy } from "./privacypolicy";
+export { default as TermsAndConditions } from "./termsandcondition";
+
+
 
 
 

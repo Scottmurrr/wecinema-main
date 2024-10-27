@@ -2,6 +2,8 @@
 
 import { useParams } from "react-router-dom";
 import { Search, Layout } from "../components";
+import cover from '.././assets/public/cover.jpg';
+
 const SearchPage = () => {
 	const {slug} = useParams();
 
@@ -11,7 +13,7 @@ const SearchPage = () => {
                 <div className="flex bg-grey justify-center w-full items-start my-0 mx-auto h-52 sm:h-80">
                     <img
                         className="w-50 h-45"
-                        src="https://scontent.flhe2-3.fna.fbcdn.net/v/t39.30808-6/444216752_345821988607794_6329538777469570636_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGYFCDEJ1QbFUUd1O9lu-MCLkagD0qX1oguRqAPSpfWiP3Oet-k3fSC3nzNN-Ys5ScBx-IItAfH-SZPks5l3M4t&_nc_ohc=_KTwnbQlAB0Q7kNvgGL19pq&_nc_zt=23&_nc_ht=scontent.flhe2-3.fna&oh=00_AYAp4ZpG5Yn9MrzkjwqFPA4awpKnjWdthyTmBGapfnKhvg&oe=6697FD0B"
+						src={cover}
                         width="1200"
                         height="200"
                         alt="Cover"

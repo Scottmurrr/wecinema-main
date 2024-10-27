@@ -38,6 +38,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 		const fileInputRef: any = useRef(null);
 		const [selectedItems, setSelectedItems] = useState<string[]>([]);
 		const [selectItems, setSelectItems] = useState<string[]>([]);
+		const [sellVideo, setSellVideo] = useState<boolean>(false); // Track if the user wants to sell the video
 
 		
 		const handleFileChange = (e: any) => {
@@ -164,6 +165,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 								file: res.data["secure_url"],
 								author: decodedToken?.userId ?? "33",
 								hasPaid: hasPaid,  // Add hasPaid field to payload
+								isForSale: sellVideo, // Include the sell flag
 							};
 							await postRequest("video/create", payload, setLoading);
 							setShow(false);
@@ -378,6 +380,18 @@ const Popup: React.FC<IPopupProps> = React.memo(
 										setSelectItems(values);
 									}}
 								/>
+									{hasPaid && (
+									<div className="my-4">
+										<label>
+											<input
+												type="checkbox"
+												checked={sellVideo}
+												onChange={(e) => setSellVideo(e.target.checked)}
+											/>{" "}
+											For Sale
+										</label>
+									</div>
+								)}
 								<button
 									disabled={loading}
 									className="rounded-md px-4 py-2 w-full my-3 bg-blue-500 text-white"
@@ -473,20 +487,19 @@ const Popup: React.FC<IPopupProps> = React.memo(
 					} ${className}`}
 				>
 					<div
-						className={`fixed top-0 left-0 h-full w-full  ${
-							background ?? "bg-black "
+						className={`fixed top-0 left-0 h-full w-full ${
+							background ?? "bg-black"
 						} bg-opacity-90 backdrop-filter backdrop-blur-15 flex items-center justify-center transition-opacity ease-in-out duration-300`}
 					>
 						<div
-							className={`sm:w-2/6 modal min-h-2/6 w-5/6 bg-white rounded-md p-6
-              transition-transform transform translate-y-0 ease-in-out relative cursor-pointer shadow-md
-              }`}
+							className={`sm:w-2/6 modal min-h-2/6 w-5/6 bg-white rounded-md p-6 transition-transform transform translate-y-0 ease-in-out relative cursor-pointer shadow-md`}
 						>
 							<header className="flex gap-4 justify-between items-center">
 								<h2>Upload Video</h2>
 								<FaTimes onClick={() => setShow(false)} />
 							</header>
 							<form onSubmit={handleVideoUploadSubmit}>
+								{/* Video details form */}
 								<input
 									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
 									placeholder="Title"
@@ -504,7 +517,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 								<Select
 									values={selectedItems}
 									options={CAT}
-									placeholder="Select genr(s).."
+									placeholder="Select genre(s).."
 									required
 									multi
 									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
@@ -539,8 +552,21 @@ const Popup: React.FC<IPopupProps> = React.memo(
 										<option value="X">X</option>
 									</select>
 								</div>
-							
-								<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '5px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '500px', margin: 'auto', marginTop: '10PX' }}>
+
+								{/* Video upload */}
+								<div
+									style={{
+										display: "flex",
+										flexDirection: "column",
+										alignItems: "center",
+										padding: "5px",
+										border: "1px solid #ccc",
+										borderRadius: "8px",
+										maxWidth: "500px",
+										margin: "auto",
+										marginTop: "10px",
+									}}
+								>
 									<div className="relative">
 										<input
 											type="file"
@@ -558,42 +584,56 @@ const Popup: React.FC<IPopupProps> = React.memo(
 													src={URL.createObjectURL(selectedFile)}
 													height={100}
 													width={100}
-													className=" object-cover"
+													className="object-cover"
 												/>
 											) : (
-												<svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="#555" className="bi bi-upload" viewBox="0 0 16 16">
-													<path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-													<path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													className="h-6 w-6 text-gray-500"
+													fill="none"
+													viewBox="0 0 24 24"
+													stroke="currentColor"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth="2"
+														d="M3 7h18M3 12h18m-9 5h9"
+													/>
 												</svg>
 											)}
 										</div>
 									</div>
-									<span
-										onClick={handleThumbnailClick}
-										className="text-gray-600 mt-5"
-									>
-										{selectedFile ? "Change Video" : "Browse to upload movie"}
-									</span>
-									<span
-										onClick={handleThumbnailClick}
-										className="text-gray-600 mt-5"
-									>
-										{selectedFile ? "" : "No file Selected"}
-									</span>
 								</div>
-								
+
+								{/* Conditionally render the sell button for Hype Mode users */}
+								{hasPaid && (
+									<div className="my-4">
+										<label>
+											<input
+												type="checkbox"
+												checked={sellVideo}
+												onChange={(e) => setSellVideo(e.target.checked)}
+											/>{" "}
+											For Sale
+										</label>
+									</div>
+								)}
+
 								<button
+									type="submit"
 									disabled={loading}
-									className="rounded-md px-4 py-2 w-full my-3 bg-blue-500 text-white"
+									className="bg-blue-500 hover:bg-blue-600 text-white font-semibold mt-5 py-2 px-4 rounded-md"
 								>
-									Upload
+									{loading ? "Uploading..." : "Upload Video"}
 								</button>
-							</form>{" "}
+							</form>
 						</div>
 					</div>
 				</div>
 			);
-		}
+		} 
+	
 		if (type === "register") {
 			return (
 				<div

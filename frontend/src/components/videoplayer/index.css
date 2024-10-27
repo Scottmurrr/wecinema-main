@@ -1,0 +1,17 @@
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px; /* Maximum width */
+    padding-bottom: 56.25%; /* Aspect ratio 16:9 (9/16 = 0.5625) */
+    height: 0;
+    margin: 0 auto; /* Center the video */
+  }
+  
+  .video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
