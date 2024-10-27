@@ -60,7 +60,7 @@ app.use("/video", VideoController);
 app.use("/user", UserController);
 
 // Connect to the database
-connectDB(process.env.DB_URI);
+connectDB("mongodb+srv://folajimi:oluwabunmi@hashnode.d43tn.mongodb.net/?retryWrites=true&w=majority");
 
 // Start the Express server
 const PORT = process.env.PORT || 3000;
