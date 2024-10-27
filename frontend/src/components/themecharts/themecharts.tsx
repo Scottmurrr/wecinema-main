@@ -14,10 +14,12 @@ interface CombinedChartProps {
 const CombinedChart: React.FC<CombinedChartProps> = ({ genreData, themeData }) => {
   // Prepare data for the chart
   const data = genreData.map((item, index) => ({
-    week: item.week,
+    genreWeek: item.week,   // Rename genre week
+    themeWeek: themeData[index]?.week, // Rename theme week
     ...themeData[index],
     ...item,
   }));
+  
 
   return (
     <ResponsiveContainer width="100%" height={400}>

@@ -44,7 +44,7 @@ interface LayoutProps {
 	children: ReactNode;
 	expand: boolean;
 }
-const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
+const Layout: React.FC<LayoutProps> = ({ children, }) => {
 	const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
 	const [token, _] = useState<string | null>(
@@ -57,7 +57,6 @@ const Layout: React.FC<LayoutProps> = ({ children, hasHeader,expand, }) => {
 	const [modalShow, setModalShow] = useState(false);
 	const [type, setType] = useState("");
 	const [show, setShow] = useState<boolean>(false);
-    const nav = useNavigate();
 
 	// Update screenWidth when the window is resized
 	const handleResize = () => {

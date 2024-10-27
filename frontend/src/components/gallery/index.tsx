@@ -24,7 +24,6 @@ const Gallery: React.FC<GalleryProps> = ({
 	title,
 	isFirst,
 	data,
-	length,
 	category,
 }) => {
 	const nav = useNavigate();

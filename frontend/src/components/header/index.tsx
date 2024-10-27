@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
     // Web Speech API for voice search
     const handleVoiceSearch = () => {
         if ('webkitSpeechRecognition' in window) {
-            const recognition = new window.webkitSpeechRecognition();
+            const recognition = new (window as any).webkitSpeechRecognition();
             recognition.lang = 'en-US';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;

@@ -20,7 +20,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   const [videoLikesLength, setVideoLikesLength] = useState(video?.likes?.length ?? 0);
   const [videoDislikesLength, setVideoDislikesLength] = useState(video?.dislikes?.length ?? 0);
   const [views, setViews] = useState(0); // State for video views
-  const [likes, setLikes] = useState(0); // State for video views
+  const [ setLikes] = useState(0); // State for video views
 
   const [userHasPaid, setUserHasPaid] = useState(false);
   const [currentUserHasPaid, setCurrentUserHasPaid] = useState(false);
