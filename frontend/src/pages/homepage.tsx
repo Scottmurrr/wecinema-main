@@ -12,6 +12,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions
 } from "chart.js";
 
 ChartJS.register(
@@ -150,97 +151,93 @@ const Homepage: React.FC = () => {
     return color;
   };
 
-  // const chartOptions = {
-  //   responsive: true,
-  //   maintainAspectRatio: false,
-  //   plugins: {
-  //     legend: {
-  //       position: "top" as const,
-  //       labels: {
-  //         color: "white",
-  //         font: {
-  //           size: 8,
-  //         },
-          
-  //         usePointStyle: true, // This will show point-style indicators instead of the color block
-  //         pointStyleWidth: 0, // This will hide the point style altogether
-  //       },
-  //     },
-  //     title: {
-  //       display: true,
-  //       text: "Rise and Fall of Different Genres/Themes/Ratings Over Time",
-  //       color: "white",
-  //       font: {
-  //         size: 12,
-  //         weight: 'bold',
-  //       },
-  //       padding: {
-  //         top: 1,
-  //         bottom: 10,
-  //       },
-  //     },
-  //     tooltip: {
-  //       enabled: true,
-  //       bodyFont: {
-  //         size: 10,
-  //       },
-  //       titleFont: {
-  //         size: 10,
-  //       },
-  //       padding: 8,
-  //     },
-  //   },
-  //   scales: {
-  //     y: {
-  //       title: {
-  //         display: true,
-  //         text: "Popularity Metric (Views/Uploads)",
-  //         color: "white",
-  //         font: {
-  //           size: 10,
-  //         },
-  //       },
-  //       ticks: {
-  //         color: "white",
-  //         font: {
-  //           size: 9,
-  //         },
-  //       },
-  //     },
-  //     x: {
-  //       reverse: true,
-  //       title: {
-  //         display: true,
-  //         text: "Time (Weeks)",
-  //         color: "white",
-  //         font: {
-  //           size: 10,
-  //         },
-  //         padding: {
-  //           bottom : 20,
-  //         },
-  //       },
-  //       ticks: {
-  //         color: "white",
-  //         font: {
-  //           size: 10,
-  //         },
-          
-  //       },
-  //     },
-  //   },
-  //   elements: {
-  //     line: {
-  //       tension: 0.4,
-  //       borderWidth: 1,
-  //     },
-  //     point: {
-  //       radius: 3,
-  //       hoverRadius: 3,
-  //     },
-  //   },
-  // };
-  
+  const chartOptions: ChartOptions<"line"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top", // Use valid literal type
+        labels: {
+          color: "white",
+          font: {
+            size: 8,
+          },
+          usePointStyle: true,
+        },
+      },
+      title: {
+        display: true,
+        text: "Rise and Fall of Different Genres/Themes/Ratings Over Time",
+        color: "white",
+        font: {
+          size: 12,
+          weight: "bold", // Valid type for weight
+        },
+        padding: {
+          top: 1,
+          bottom: 10,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        bodyFont: {
+          size: 10,
+        },
+        titleFont: {
+          size: 10,
+        },
+        padding: 8,
+      },
+    },
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: "Popularity Metric (Views/Uploads)",
+          color: "white",
+          font: {
+            size: 10,
+          },
+        },
+        ticks: {
+          color: "white",
+          font: {
+            size: 9,
+          },
+        },
+      },
+      x: {
+        reverse: true,
+        title: {
+          display: true,
+          text: "Time (Weeks)",
+          color: "white",
+          font: {
+            size: 10,
+          },
+          padding: {
+            bottom: 20,
+          },
+        },
+        ticks: {
+          color: "white",
+          font: {
+            size: 10,
+          },
+        },
+      },
+    },
+    elements: {
+      line: {
+        tension: 0.4,
+        borderWidth: 1,
+      },
+      point: {
+        radius: 3,
+        hoverRadius: 3,
+      },
+    },
+  };
   const handleScriptMouseEnter = (index: number) => {
     setShowMoreIndex(index);
   };
@@ -284,7 +281,7 @@ const Homepage: React.FC = () => {
           >
             <h3 className="text-black mb-2">Genre Popularity</h3>
             {!loading && genreChartData && (
-              <Line data={genreChartData} options={genreChartData} />
+              <Line data={genreChartData} options={chartOptions} />
             )}
           </div>
 
@@ -298,7 +295,7 @@ const Homepage: React.FC = () => {
           >
             <h3 className="text-black mb-2">Theme Popularity</h3>
             {!loading && themeChartData && (
-              <Line data={themeChartData} options={genreChartData} />
+              <Line data={themeChartData} options={chartOptions} />
             )}
           </div>
 
@@ -312,7 +309,7 @@ const Homepage: React.FC = () => {
           >
             <h3 className="text-black mb-2">Rating Popularity</h3>
             {!loading && ratingChartData && (
-              <Line data={ratingChartData} options={genreChartData} />
+              <Line data={ratingChartData} options={chartOptions} />
             )}
           </div>
         </div>

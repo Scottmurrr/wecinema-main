@@ -77,31 +77,43 @@ export const toggleItemInArray = <T>(array: T[], item: T): T[] =>
   array.includes(item) ? array.filter(i => i !== item) : [...array, item];
 
 // Chart options generator
-export const getChartOptions = (
-  title: string = "Chart Title",
-  yAxisLabel: string = "Popularity Metric (Views/Uploads)"
-) => ({
+export const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: "top",
+      position: "top" as const,
       labels: {
         color: "white",
-        font: { size: 8 },
-        usePointStyle: true,
+        font: {
+          size: 8,
+        },
+        
+        usePointStyle: true, // This will show point-style indicators instead of the color block
+        pointStyleWidth: 0, // This will hide the point style altogether
       },
     },
     title: {
       display: true,
-      text: title,
+      text: "Rise and Fall of Different Genres/Themes/Ratings Over Time",
       color: "white",
-      font: { size: 12, weight: "bold" },
+      font: {
+        size: 12,
+        weight: 'bold',
+      },
+      padding: {
+        top: 1,
+        bottom: 10,
+      },
     },
     tooltip: {
       enabled: true,
-      bodyFont: { size: 10 },
-      titleFont: { size: 10 },
+      bodyFont: {
+        size: 10,
+      },
+      titleFont: {
+        size: 10,
+      },
       padding: 8,
     },
   },
@@ -109,13 +121,17 @@ export const getChartOptions = (
     y: {
       title: {
         display: true,
-        text: yAxisLabel,
+        text: "Popularity Metric (Views/Uploads)",
         color: "white",
-        font: { size: 10 },
+        font: {
+          size: 10,
+        },
       },
       ticks: {
         color: "white",
-        font: { size: 9 },
+        font: {
+          size: 9,
+        },
       },
     },
     x: {
@@ -124,16 +140,30 @@ export const getChartOptions = (
         display: true,
         text: "Time (Weeks)",
         color: "white",
-        font: { size: 10 },
+        font: {
+          size: 10,
+        },
+        padding: {
+          bottom : 20,
+        },
       },
       ticks: {
         color: "white",
-        font: { size: 10 },
+        font: {
+          size: 10,
+        },
+        
       },
     },
   },
   elements: {
-    line: { tension: 0.4, borderWidth: 1 },
-    point: { radius: 3, hoverRadius: 3 },
+    line: {
+      tension: 0.4,
+      borderWidth: 1,
+    },
+    point: {
+      radius: 3,
+      hoverRadius: 3,
+    },
   },
-});
+};
