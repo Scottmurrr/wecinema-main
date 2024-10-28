@@ -254,64 +254,34 @@ const Homepage: React.FC = () => {
         style={{
           marginBottom: "10px",
           backgroundColor: "grey",
-          backgroundImage: "url('https://i.ibb.co/9TFBs50/Pngtree-literary-atmospheric-movie-market-banner-1072077.jpg')",
+          backgroundImage:
+            "url('https://i.ibb.co/9TFBs50/Pngtree-literary-atmospheric-movie-market-banner-1072077.jpg')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
           borderRadius: "30px",
         }}
       >
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-l font-extrabold text-black text-2xl sm:text-5xl">
-            WECINEMA
-          </h1>
-        </div>
+        <h1 className="text-2xl sm:text-5xl text-black font-extrabold mb-4">
+          WECINEMA
+        </h1>
 
-        <p className="text-l font-extrabold text-black text-sm sm:text-xl mb-4">
+        <p className="text-sm sm:text-xl text-black font-extrabold mb-4">
           Genre, Theme, and Rating Popularity Over Time
         </p>
-        
-        <div className="flex flex-col sm:flex-row space-x-0 sm:space-x-4">
-          {/* Genre Popularity Chart Container */}
-          <div
-            className="bg-black rounded-lg p-4 flex-1 mb-4 sm:mb-0"
-            style={{
-              borderRadius: "20px",
-              height: "300px",
-            }}
-          >
-            <h3 className="text-black mb-2">Genre Popularity</h3>
-            {!loading && genreChartData && (
-              <Line data={genreChartData} options={chartOptions} />
-            )}
-          </div>
 
-          {/* Theme Popularity Chart Container */}
-          <div
-            className="bg-black rounded-lg p-4 flex-1 mb-4 sm:mb-0"
-            style={{
-              borderRadius: "20px",
-              height: "300px",
-            }}
-          >
-            <h3 className="text-black mb-2">Theme Popularity</h3>
-            {!loading && themeChartData && (
-              <Line data={themeChartData} options={chartOptions} />
-            )}
-          </div>
-
-          {/* Rating Popularity Chart Container */}
-          <div
-            className="bg-black rounded-lg p-4 flex-1 mb-4 sm:mb-0"
-            style={{
-              borderRadius: "20px",
-              height: "300px",
-            }}
-          >
-            <h3 className="text-black mb-2">Rating Popularity</h3>
-            {!loading && ratingChartData && (
-              <Line data={ratingChartData} options={chartOptions} />
-            )}
-          </div>
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+          {[genreChartData, themeChartData, ratingChartData].map(
+            (chartData, idx) => (
+              <div
+                key={idx}
+                className="bg-black p-4 rounded-lg flex-1"
+                style={{ height: "300px", borderRadius: "20px" }}
+              >
+                {!loading && chartData && (
+                  <Line data={chartData} options={chartOptions} />
+                )}
+              </div>
+            )
+          )}
         </div>
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-1 gap-4">
