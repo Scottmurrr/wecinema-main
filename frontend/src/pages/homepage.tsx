@@ -283,9 +283,9 @@ const Homepage: React.FC = () => {
             }}
           >
             <h3 className="text-black mb-2">Genre Popularity</h3>
-            {!loading && genreChartData && (
-              <Line data={genreChartData} options={chartOptions} />
-            )}
+            {/* {!loading && genreChartData && (
+              // <Line data={genreChartData} options={chartOptions} />
+            )} */}
           </div>
 
           {/* Theme Popularity Chart Container */}
@@ -297,9 +297,9 @@ const Homepage: React.FC = () => {
             }}
           >
             <h3 className="text-black mb-2">Theme Popularity</h3>
-            {!loading && themeChartData && (
+            {/* {!loading && themeChartData && (
               <Line data={themeChartData} options={chartOptions} />
-            )}
+            )} */}
           </div>
 
           {/* Rating Popularity Chart Container */}
@@ -311,9 +311,9 @@ const Homepage: React.FC = () => {
             }}
           >
             <h3 className="text-black mb-2">Rating Popularity</h3>
-            {!loading && ratingChartData && (
+            {/* {!loading && ratingChartData && (
               <Line data={ratingChartData} options={chartOptions} />
-            )}
+            )} */}
           </div>
         </div>
       </div>
