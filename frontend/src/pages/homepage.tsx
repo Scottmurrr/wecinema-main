@@ -248,7 +248,7 @@ const Homepage: React.FC = () => {
 
   return (
     <Layout expand={false}>
-     {/* Combined Charts Section with Textured Background */}
+    {/* Combined Charts Section with Textured Background */}
 <div
   className="p-4 mt-5 rounded-lg shadow-lg text-white"
   style={{
@@ -274,7 +274,7 @@ const Homepage: React.FC = () => {
         key={idx}
         className="bg-black p-4 rounded-lg flex-1"
         style={{
-          height: "300px", // Default height for mobile
+          height: "270px", // Default height for mobile
           borderRadius: "20px",
           width: "100%", // Full width on smaller screens
           maxWidth: "400px", // Set a max-width for larger screens
@@ -290,12 +290,12 @@ const Homepage: React.FC = () => {
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-1 gap-4">
                  {/* Theme List Bar */}
-                 <div className="w-screen overflow-x-auto flex gap-2 sm:gap-4 px-0 sm:px-4 py-2 bg-gray-100 border-b border-gray-300">
+                 <div className="overflow-x-auto flex gap-2 sm:gap-4 p-2 sm:p-4 bg-gray-100 border-b border-gray-300 w-screen -mx-4 px-4 sm:mx-0 sm:w-auto">
   {theme.map((val, index) => (
     <button
       key={index}
       onClick={() => nav(`/themes/${val.toLowerCase()}`)}
-      className="bg-yellow-500 text-white text-sm sm:text-base px-2 sm:px-3 py-1 rounded-full whitespace-nowrap hover:bg-yellow-600 transition-colors duration-200"
+      className="bg-yellow-500 text-white text-sm sm:text-base px-2 sm:px-3 py-1 rounded-full whitespace-nowrap hover:bg-yellow-600 transition-all"
     >
       {val}
     </button>
