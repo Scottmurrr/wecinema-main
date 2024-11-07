@@ -248,55 +248,60 @@ const Homepage: React.FC = () => {
 
   return (
     <Layout expand={false}>
-      {/* Combined Charts Section with Textured Background */}
+     {/* Combined Charts Section with Textured Background */}
+<div
+  className="p-4 mt-5 rounded-lg shadow-lg text-white"
+  style={{
+    marginBottom: "10px",
+    backgroundColor: "grey",
+    backgroundImage:
+      "url('https://i.ibb.co/9TFBs50/Pngtree-literary-atmospheric-movie-market-banner-1072077.jpg')",
+    backgroundSize: "cover",
+    borderRadius: "30px",
+  }}
+>
+  <h1 className="text-xl md:text-2xl lg:text-5xl text-black font-extrabold mb-4 text-center">
+    WECINEMA
+  </h1>
+
+  <p className="text-sm md:text-base lg:text-xl text-black font-extrabold mb-4 text-center">
+    Genre, Theme, and Rating Popularity Over Time
+  </p>
+
+  <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
+    {[genreChartData, themeChartData, ratingChartData].map((chartData, idx) => (
       <div
-        className="p-4 mt-5 rounded-lg shadow-lg text-white"
+        key={idx}
+        className="bg-black p-4 rounded-lg flex-1"
         style={{
-          marginBottom: "10px",
-          backgroundColor: "grey",
-          backgroundImage:
-            "url('https://i.ibb.co/9TFBs50/Pngtree-literary-atmospheric-movie-market-banner-1072077.jpg')",
-          backgroundSize: "cover",
-          borderRadius: "30px",
+          height: "300px", // Default height for mobile
+          borderRadius: "20px",
+          width: "100%", // Full width on smaller screens
+          maxWidth: "400px", // Set a max-width for larger screens
         }}
       >
-        <h1 className="text-2xl sm:text-5xl text-black font-extrabold mb-4">
-          WECINEMA
-        </h1>
-
-        <p className="text-sm sm:text-xl text-black font-extrabold mb-4">
-          Genre, Theme, and Rating Popularity Over Time
-        </p>
-
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-          {[genreChartData, themeChartData, ratingChartData].map(
-            (chartData, idx) => (
-              <div
-                key={idx}
-                className="bg-black p-4 rounded-lg flex-1"
-                style={{ height: "300px", borderRadius: "20px" }}
-              >
-                {!loading && chartData && (
-                  <Line data={chartData} options={chartOptions} />
-                )}
-              </div>
-            )
-          )}
-        </div>
+        {!loading && chartData && (
+          <Line data={chartData} options={chartOptions} />
+        )}
       </div>
+    ))}
+  </div>
+</div>
+
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-1 gap-4">
                  {/* Theme List Bar */}
- <div className="overflow-x-auto flex gap-4 p-4 bg-gray-100 border-b border-gray-300">
-        {theme.map((val, index) => (
-          <button
-            key={index}
-            onClick={() => nav(`/themes/${val.toLowerCase()}`)}
-            className="bg-yellow-500 text-white px-3 py-1 rounded-full whitespace-nowrap hover:bg-yellow-500"
-          >
-            {val}
-          </button>
-        ))}
-      </div>
+                 <div className="w-screen overflow-x-auto flex gap-2 sm:gap-4 px-0 sm:px-4 py-2 bg-gray-100 border-b border-gray-300">
+  {theme.map((val, index) => (
+    <button
+      key={index}
+      onClick={() => nav(`/themes/${val.toLowerCase()}`)}
+      className="bg-yellow-500 text-white text-sm sm:text-base px-2 sm:px-3 py-1 rounded-full whitespace-nowrap hover:bg-yellow-600 transition-colors duration-200"
+    >
+      {val}
+    </button>
+  ))}
+</div>
+
       </div>
 
  
