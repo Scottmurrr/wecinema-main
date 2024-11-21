@@ -7,7 +7,7 @@ const videoeditorpage = () => {
     
   return (
     <Layout expand={false} hasHeader={false}>
-      <div style={styles.container}>
+      <div >
         <h2 style={styles.heading}>Video Editor</h2>
         <div style={styles.videoWrapper}>
           <video
@@ -24,7 +24,7 @@ const videoeditorpage = () => {
             />
             Your browser does not support HTML5 video.
           </video>
-		  <h2 >Comming Soon</h2>
+	<h2 >Comming Soon</h2>
 
         </div>
       </div>
