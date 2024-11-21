@@ -1,37 +1,17 @@
-import React, { useRef, useEffect } from 'react';
-import videojs from 'video.js'; // Import Video.js
 import 'video.js/dist/video-js.css'; // Import Video.js styles
 import { Layout } from '../components';
 
 const videoeditorpage = () => {
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
+  
 
-  useEffect(() => {
-    // Initialize Video.js player
-    if (videoRef.current) {
-      playerRef.current = videojs(videoRef.current, {
-        controls: true,
-        responsive: true,
-        fluid: true,
-      });
-    }
-
-    return () => {
-      // Cleanup player on component unmount
-      if (playerRef.current) {
-        playerRef.current.dispose();
-      }
-    };
-  }, []);
-
+    
   return (
     <Layout expand={false} hasHeader={false}>
       <div style={styles.container}>
         <h2 style={styles.heading}>Video Editor</h2>
         <div style={styles.videoWrapper}>
           <video
-            ref={videoRef}
+           
             className="video-js vjs-default-skin"
             controls
             preload="auto"
