@@ -20,7 +20,7 @@ button:disabled {
 }
 
 .thumbnail img {
-	height: 150px !important;
+	height: 200px !important;
 	width: 100% !important;
 }
 .bg-dark {
@@ -112,9 +112,10 @@ button:disabled {
 	.btn {
 		font-size: 12px;
 	}
-	/* .thumbnail {
+	.thumbnail img {
 		height: 200px !important;
-	} */
+		width: 100% !important;
+	}
 }
 @media (max-width: 900px) {
 	.bar {
@@ -208,3 +209,79 @@ nav img {
   }
   /* Correct */
 
+  .chart-container {
+	height: 270px; /* Adjust height based on your design */
+	margin-top: 10px;
+	border-radius: 20px;
+	width: 100%; /* Full width on smaller screens */
+	max-width: 400px; /* Limit max width for larger screens */
+	background-color: black;
+	padding: 1rem; /* Adjust padding as needed */
+  }
+  
+  .chart-title {
+	font-size: 1.2rem;
+	font-weight: bold;
+	text-align: center;
+	color: white;
+	margin-bottom: 10px;
+  }
+  
+  .chart-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+  }
+  
+  .chart-wrapper-lg {
+	flex-direction: row;
+	justify-content: space-between;
+  }
+  
+  .textured-background {
+	margin-bottom: 10px;
+	background-color: grey;
+	background-image: url('https://i.ibb.co/9TFBs50/Pngtree-literary-atmospheric-movie-market-banner-1072077.jpg');
+	background-size: cover;
+	border-radius: 30px;
+	padding: 1rem;
+  }
+  
+  .chart-heading {
+	font-size: 2rem;
+	font-weight: bold;
+	color: black;
+	margin-bottom: 0.5rem;
+	margin-top: 20px;
+  }
+  
+  .chart-subheading {
+	font-size: 1rem;
+	font-weight: bold;
+	color: black;
+	margin-top: 10px;
+  }
+  
+  .chart-wrapper {
+	display: flex;
+	flex-direction: column; /* Default to column for mobile */
+	gap: 1rem;
+  }
+  
+  @media (min-width: 1024px) {
+	.chart-wrapper {
+	  flex-direction: row; /* Switch to row for larger screens */
+	  justify-content: space-between;
+	}
+  }
+  
+  .chart-container {
+	height: 270px;
+	border-radius: 20px;
+	width: 100%; /* Full width for mobile */
+	max-width: 400px; /* Limit width for larger screens */
+	background-color: black;
+	padding: 1rem;
+	margin: 0 auto; /* Center charts horizontally */
+  }
+  

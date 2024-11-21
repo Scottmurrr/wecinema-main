@@ -42,7 +42,7 @@
     "react-dropdown-select": "^4.11.1",
     "react-icons": "^4.12.0",
     "react-modal": "^3.16.1",
-    "react-player": "^2.14.1",
+    "react-player": "^2.16.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.21.1",
     "react-toastify": "^10.0.3",
@@ -54,7 +54,8 @@
     "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.8",
     "twin.macro": "^3.4.1",
-    "video-react": "^0.16.0"
+    "video-react": "^0.16.0",
+    "video.js": "^8.19.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

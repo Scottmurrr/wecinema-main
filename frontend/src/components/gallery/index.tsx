@@ -112,7 +112,7 @@ const Gallery: React.FC<GalleryProps> = ({
 							onClick={() => handleVideolick(video)}
 							className="thumbnail relative overflow-hidden"
 							style={{
-								height: "150px", // Adjusted height
+								height: "250px", // Adjusted height
 								borderRadius: "12px", // Rounded corners on top and bottom
 								overflow: "hidden",
 							}}
