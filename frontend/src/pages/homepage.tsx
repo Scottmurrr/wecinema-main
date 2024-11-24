@@ -9,7 +9,7 @@ import { Pagination } from "swiper/modules"; // Correct import for Pagination mo
 // Import Swiper styles
 import "swiper/css"; // Core Swiper styles
 import "swiper/css/pagination"; // Pagination styles
-
+ 
 
 import {
   Chart as ChartJS,
