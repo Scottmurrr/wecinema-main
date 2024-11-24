@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Gallery, Layout, Render } from "../components/"; // Replace with actual imports
 import { getRequest } from "../api"; // Replace with actual API call
 import { useNavigate } from "react-router-dom";
-import { Line } from "react-chartjs-2";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules"; // Correct import for Pagination module
 
-// Import Swiper styles
-import "swiper/css"; // Core Swiper styles
-import "swiper/css/pagination"; // Pagination styles
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import { Line } from "react-chartjs-2";
+import "swiper/css";
+import "swiper/css/pagination";
+
+
+ 
+import "../App.css"; // Core Swiper styles
  
 
 import {
@@ -33,6 +36,7 @@ ChartJS.register(
   Legend
 );
 export const theme = [
+  
 	"Love",
 	"Redemption",
 	"Family",
@@ -62,6 +66,15 @@ const Homepage: React.FC = () => {
   const [data, setData] = useState<any>([]);
   const [showMoreIndex, setShowMoreIndex] = useState<number | null>(null);
   const nav = useNavigate();
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowPopup(true);
+      const timer = setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -262,10 +275,16 @@ const Homepage: React.FC = () => {
         Genre, Theme, and Rating Popularity Over Time
       </p>
 
-      {/* Conditionally render Swiper for mobile view */}
+      {/* Popup for swipe right */}
+      {showPopup && (
+        <div className="popup">
+          <p>Swipe right to view more charts!</p>
+        </div>
+      )}
+
       {window.innerWidth < 768 ? (
         <Swiper
-          modules={[Pagination]} // Include Pagination as a module
+          modules={[Pagination]}
           pagination={{ clickable: true }}
           spaceBetween={16}
           slidesPerView={1}
@@ -273,7 +292,7 @@ const Homepage: React.FC = () => {
         >
           {[genreChartData, themeChartData, ratingChartData].map(
             (chartData, idx) => (
-              <SwiperSlide key={idx}>
+              <SwiperSlide key={idx} className="swiper-slide">
                 <div className="chart-container">
                   {!loading && chartData && (
                     <Line data={chartData} options={chartOptions} />
@@ -284,7 +303,6 @@ const Homepage: React.FC = () => {
           )}
         </Swiper>
       ) : (
-        // Original layout for larger screens
         <div
           className={`chart-wrapper ${
             window.innerWidth >= 1024 ? "chart-wrapper-lg" : ""
