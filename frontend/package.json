@@ -53,6 +53,7 @@
     "sitemap": "^8.0.0",
     "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.8",
+    "swiper": "^11.1.15",
     "twin.macro": "^3.4.1",
     "video-react": "^0.16.0",
     "video.js": "^8.19.1"

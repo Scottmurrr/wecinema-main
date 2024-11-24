@@ -113,7 +113,7 @@ const Gallery: React.FC<GalleryProps> = ({
 							className="thumbnail relative overflow-hidden"
 							style={{
 								height: "250px", // Adjusted height
-								borderRadius: "12px", // Rounded corners on top and bottom
+								// borderRadius: "20px", // Rounded corners on top and bottom
 								overflow: "hidden",
 							}}
 						>

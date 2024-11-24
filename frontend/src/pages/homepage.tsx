@@ -3,6 +3,14 @@ import { Gallery, Layout, Render } from "../components/"; // Replace with actual
 import { getRequest } from "../api"; // Replace with actual API call
 import { useNavigate } from "react-router-dom";
 import { Line } from "react-chartjs-2";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules"; // Correct import for Pagination module
+
+// Import Swiper styles
+import "swiper/css"; // Core Swiper styles
+import "swiper/css/pagination"; // Pagination styles
+
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -248,24 +256,52 @@ const Homepage: React.FC = () => {
 
   return (
     <Layout expand={false}>
-    {/* Combined Charts Section with Textured Background */}
-<div className="textured-background">
-  <h1 className="chart-heading">WECINEMA</h1>
-  <p className="chart-subheading">
-    Genre, Theme, and Rating Popularity Over Time
-  </p>
+   <div className="textured-background">
+      <h1 className="chart-heading">WECINEMA</h1>
+      <p className="chart-subheading">
+        Genre, Theme, and Rating Popularity Over Time
+      </p>
 
-  <div className={`chart-wrapper ${window.innerWidth >= 1024 ? 'chart-wrapper-lg' : ''}`}>
-    {[genreChartData, themeChartData, ratingChartData].map((chartData, idx) => (
-      <div key={idx} className="chart-container">
-        {!loading && chartData && <Line data={chartData} options={chartOptions} />}
-      </div>
-    ))}
-  </div>
-  </div>
-
-
-
+      {/* Conditionally render Swiper for mobile view */}
+      {window.innerWidth < 768 ? (
+        <Swiper
+          modules={[Pagination]} // Include Pagination as a module
+          pagination={{ clickable: true }}
+          spaceBetween={16}
+          slidesPerView={1}
+          className="mobile-swiper"
+        >
+          {[genreChartData, themeChartData, ratingChartData].map(
+            (chartData, idx) => (
+              <SwiperSlide key={idx}>
+                <div className="chart-container">
+                  {!loading && chartData && (
+                    <Line data={chartData} options={chartOptions} />
+                  )}
+                </div>
+              </SwiperSlide>
+            )
+          )}
+        </Swiper>
+      ) : (
+        // Original layout for larger screens
+        <div
+          className={`chart-wrapper ${
+            window.innerWidth >= 1024 ? "chart-wrapper-lg" : ""
+          }`}
+        >
+          {[genreChartData, themeChartData, ratingChartData].map(
+            (chartData, idx) => (
+              <div key={idx} className="chart-container">
+                {!loading && chartData && (
+                  <Line data={chartData} options={chartOptions} />
+                )}
+              </div>
+            )
+          )}
+        </div>
+      )}
+    </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-1 gap-4 ml-4">
                  {/* Theme List Bar */}

@@ -47,6 +47,8 @@ const styles = {
     fontWeight: 'bold',
     color: '#333',
     marginBottom: '20px',
+    marginTop: '25px',
+
   },
   videoWrapper: {
     display: 'flex',
