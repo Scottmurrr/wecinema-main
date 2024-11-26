@@ -320,7 +320,29 @@ const Homepage: React.FC = () => {
             )
           )}
         </div>
+        
       )}
+    <div 
+  className="fixed bottom-3 right-2 bg-yellow-500 text-white p-1 rounded-full shadow-lg hover:bg-yellow-600 cursor-pointer z-50"
+  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+    className="w-6 h-6"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5 15l7-7 7 7"
+    />
+  </svg>
+</div>
+
+
     </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-1 gap-4 ml-4">
