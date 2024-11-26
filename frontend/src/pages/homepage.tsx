@@ -64,11 +64,12 @@ const Homepage: React.FC = () => {
   const [data, setData] = useState<any>([]);
   const [showMoreIndex, setShowMoreIndex] = useState<number | null>(null);
   const nav = useNavigate();
-  const [ setShowPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     if (window.innerWidth < 768) {
       setShowPopup(true);
+      showPopup
       const timer = setTimeout(() => setShowPopup(false), 3000); // Hide popup after 3 seconds
       return () => clearTimeout(timer);
     }
