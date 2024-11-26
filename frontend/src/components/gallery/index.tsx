@@ -89,7 +89,7 @@ const Gallery: React.FC<GalleryProps> = ({
 	return (
 		<div
 			className={` ${
-				isFirst ? "mt-20" : ""
+				isFirst ? "mt-2" : ""
 			} z-1 relative p-2 flex flex-wrap border-b  border-blue-200 sm:mx-4 pb-4`}
 		>
 			<div className="mt-1 w-full sm:px-4 py-2 flex justify-between items-center">

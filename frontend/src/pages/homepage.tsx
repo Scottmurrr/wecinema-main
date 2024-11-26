@@ -4,12 +4,10 @@ import { getRequest } from "../api"; // Replace with actual API call
 import { useNavigate } from "react-router-dom";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Pagination, Navigation } from "swiper/modules";
 import { Line } from "react-chartjs-2";
 import "swiper/css";
 import "swiper/css/pagination";
-
-
  
 import "../App.css"; // Core Swiper styles
  
@@ -275,33 +273,36 @@ const Homepage: React.FC = () => {
         Genre, Theme, and Rating Popularity Over Time
       </p>
 
-      {/* Popup for swipe right */}
-      {showPopup && (
-        <div className="popup">
-          <p>Swipe right to view more charts!</p>
-        </div>
-      )}
-
       {window.innerWidth < 768 ? (
-        <Swiper
-          modules={[Pagination]}
-          pagination={{ clickable: true }}
-          spaceBetween={16}
-          slidesPerView={1}
-          className="mobile-swiper"
-        >
-          {[genreChartData, themeChartData, ratingChartData].map(
-            (chartData, idx) => (
-              <SwiperSlide key={idx} className="swiper-slide">
-                <div className="chart-container">
-                  {!loading && chartData && (
-                    <Line data={chartData} options={chartOptions} />
-                  )}
-                </div>
-              </SwiperSlide>
-            )
-          )}
-        </Swiper>
+        <div className="relative">
+          {/* Arrow Buttons */}
+          <div className="swiper-button-prev custom-prev">←</div>
+          <div className="swiper-button-next custom-next">→</div>
+
+          <Swiper
+            modules={[Pagination,Navigation]} // Include Navigation
+            pagination={{ clickable: true }}
+            navigation={{
+              prevEl: ".custom-prev",
+              nextEl: ".custom-next",
+            }} // Connect buttons
+            spaceBetween={16}
+            slidesPerView={1}
+            className="mobile-swiper"
+          >
+            {[genreChartData, themeChartData, ratingChartData].map(
+              (chartData, idx) => (
+                <SwiperSlide key={idx} className="swiper-slide">
+                  <div className="chart-container">
+                    {!loading && chartData && (
+                      <Line data={chartData} options={chartOptions} />
+                    )}
+                  </div>
+                </SwiperSlide>
+              )
+            )}
+          </Swiper>
+        </div>
       ) : (
         <div
           className={`chart-wrapper ${
