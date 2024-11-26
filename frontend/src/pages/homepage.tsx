@@ -64,7 +64,7 @@ const Homepage: React.FC = () => {
   const [data, setData] = useState<any>([]);
   const [showMoreIndex, setShowMoreIndex] = useState<number | null>(null);
   const nav = useNavigate();
-  const [showPopup, setShowPopup] = useState(false);
+  const [ setShowPopup] = useState(false);
 
   useEffect(() => {
     if (window.innerWidth < 768) {
