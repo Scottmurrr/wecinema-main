@@ -97,6 +97,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 				const result: any = await postRequest(
 					"user/login",
 					payload,
+					
 					setLoading
 				);
 				console.log("Post success:", result);
@@ -109,6 +110,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 				}, 1000);
 			} catch (error) {
 				setLoading(false);
+
 				console.error("Post error:", error);
 			}
 		};

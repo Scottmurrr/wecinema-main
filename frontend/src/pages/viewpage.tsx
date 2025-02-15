@@ -81,7 +81,7 @@ const Viewpage: React.FC<any> = () => {
 				<div className="sm:w-4/5 ">
 					<Player video={loggedVideo} tokenData={decodeToken(token)} />
 				</div>
-				<div className="min-h-86 sm:w-1/5  ml-2.5 py-10">
+				<div className="min-h-86 sm:w-2/6  ml-2.5 ">
 					{catVideos.map((video: any, index: number) => (
 						<div
 							key={index}
@@ -89,7 +89,7 @@ const Viewpage: React.FC<any> = () => {
 								index === 0 ? "sm:mt-20 mt-10" : "mt-6"
 							}`}
 						>
-							<div className="bg-gray-500 size  flex-shrink-0 relative overflow-hidden  mr-2.5 rounded-md">
+							<div className="bg-gray-500 size   flex-shrink-0 relative overflow-hidden  mr-2.5 rounded-md">
 								<VideoThumbnail
 									videoUrl={video.file}
 									//thumbnailHandler={(thumbnail: any) => console.log(thumbnail)}

@@ -24,7 +24,7 @@ export const truncateText = (text: string, maxLength: number): string =>
 
 // Decode and validate JWT token
 export const decodeToken = (token: any) => {
-  console.log(token);
+  // console.log(token);
   if (!token) return null;
   try {
     const decodedToken: any = jwtDecode(token) as Itoken;

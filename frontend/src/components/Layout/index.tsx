@@ -115,6 +115,18 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 			/>
 			{expanded && screenWidth <= 1120 && (
 				<div className="fixed  top-0 left-0 z-40 h-full w-full  bg-black bg-opacity-90 backdrop-filter backdrop-blur-15 flex items-center justify-center transition-opacity ease-in-out duration-300">
+					<Sidebar
+					expand={expanded && screenWidth > 1120}
+					setLightMode={setLightMode}
+					setDarkMode={setDarkiMode}
+					toggleSigninModal={() => handleType("login")}
+					toggleSignupModal={() => handleType("register")}
+					toggleSignoutModal={() => handleType("logout")}
+					darkMode={darkMode}
+					toggleUploadModal={() => handleType("video")}
+					toggleUploadScriptModal={() => handleType("script")}
+					isLoggedIn={decodedToken}
+				/>
 					<section
 						// style={{ marginTop: 67 }}
 						className={`text-blue bar mt-16 inset-0 sm:w-1/5 overflow-auto fixed border-r border-gray-200 
@@ -315,24 +327,35 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 							<ul className="border-b  w-full border-gray-200 pb-4 ">
 							{!decodedToken && (
 									<>
-										<Link to="/signup" className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${expanded ? "" : "flex-col justify-center text-xs gap-1 specific"}`}>
-											<FaSignInAlt size="20" />
-											<span className="text-sm">Sign Up</span>
-										</Link>
-										<Link to="/signin" className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${expanded ? "" : "flex-col justify-center text-xs gap-1 specific"}`}>
-											<FaSignInAlt size="20" />
-											<span className="text-sm">Sign In</span>
-										</Link>
+										<li
+									onClick={() => handleType("login")}
+									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
+								>
+									<FaSignOutAlt size="16" className="hover:text-green-500" />
+									Sig in
+								</li>
+								<li
+									onClick={() => handleType("register")}
+									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
+								>
+									<FaSignOutAlt size="16" className="hover:text-green-500" />
+									Sign up
+								</li>
 									</>
 								)}
-								<li
+								
+							</ul>
+							{decodedToken && (
+
+							<li
 									onClick={() => handleType("logout")}
 									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
 								>
 									<FaSignOutAlt size="16" className="hover:text-green-500" />
 									Log out
 								</li>
-							</ul>
+								)}
+
 						</nav>
 					</section>
 				</div>

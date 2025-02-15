@@ -21,6 +21,8 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   const [videoDislikesLength, setVideoDislikesLength] = useState(video?.dislikes?.length ?? 0);
   const [views, setViews] = useState(0); // State for video views
   const [likes, setLikes] = useState(0); // State for video views
+  const [reply, setReply] = useState<string>(""); // State to handle reply input
+  const [replyingTo, setReplyingTo] = useState<string | null>(null); // State to track which comment is being replied to
 
   const [userHasPaid, setUserHasPaid] = useState(false);
   const [currentUserHasPaid, setCurrentUserHasPaid] = useState(false);
@@ -107,6 +109,38 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
     }
   };
   
+    // Function to handle reply submission
+    const handleReplySubmit = async (e: React.FormEvent<HTMLFormElement>, commentId: string) => {
+      e.preventDefault();
+  
+      if (reply.length > 1) {
+        if (!tokenData?.userId) {
+          toast.error("Log in first !!!");
+          return;
+        }
+        try {
+          setLoading(true);
+          let payload = {
+            userId: tokenData?.userId,
+            text: reply,
+          };
+          const result: any = await postRequest(
+            `video/${video._id}/comment/${commentId}`,
+            payload,
+            setLoading,
+            "Replied successfully"
+          );
+          setReply("");
+          setReplyingTo(null); // Reset replying state
+          setCommentData(result?.comments);
+        } catch (error: any) {
+          setLoading(false);
+          toast.error(error.message);
+          console.error("Reply error:", error);
+        }
+      }
+    };
+  
   
   
   const handleDislikeClick = async () => {
@@ -121,7 +155,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
         action: newIsDisliked ? 'dislike' : 'undislike',
       };
   
-      await postRequest(`/video/dislike/${video._id}`, payload, setLoading, "Video Disliked!");
+      await postRequest(`/video/dislike/${video._id}`, payload, setLoading,);
   
       // Update dislike count in UI
       setVideoDislikesLength(newIsDisliked ? videoDislikesLength + 1 : videoDislikesLength - 1);
@@ -149,7 +183,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
         "user/" + video.author?._id + "/follow",
         payload,
         setLoading,
-        "Followed!"
+        // "Followed!"
       );
       console.log("Post success:", result);
       setComment("");
@@ -257,9 +291,13 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   return (
     <div className="">
       {/* Video Player */}
-      <div className="relative w-full min-w-screen-xl bg-black" style={{ marginTop: 17 }}>
+      <div
+  className="relative w-full min-w-screen-xl bg-black max-w-4xl rounded-md"
+  style={{ marginTop: 17, marginLeft: 20  }}
+>
+
         {loading && <MdPlayArrow />}
-        <video width="100%" height="400" controls onPlay={handleVideoPlay}>
+        <video width="100%" height="400" controls onPlay={handleVideoPlay}  style={{ }} >
           <source src={video?.file} type="video/mp4" />
           <source src={video?.file} type="video/quicktime" />
           Your browser does not support the video tag.
@@ -267,7 +305,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
       </div>
 
       {/* Video Metadata and Actions */}
-      <div className="mt-4 sm:flex justify-between items-center border-b pb-3 border-blue-200">
+      <div className="mt-4 sm:flex justify-between items-center border-b  pb-5 border-grey-200">
         {/* Video Information and Comments */}
         <div className="sm:w-3/5 ml-4 ">
           {/* Video Title */}
@@ -305,28 +343,32 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
             {isUserIdInArray(tokenData?.userId, video?.author?.followers) ? (
               <button
                 onClick={() => handleFollowSubmit("unfollow")}
-                className="bg-red-600 btn cursor-pointer text-white px-6 md:py-2 py-1 rounded-full"
+                className="bg-yellow-500 btn cursor-pointer text-white px-6 md:py-2 py-1 rounded-full"
               >
-                Unfollow
+                UnSubscribe
               </button>
             ) : (
               <button
                 onClick={() => handleFollowSubmit("follow")}
-                className="bg-green-400 btn text-white cursor-pointer px-6 md:py-2 py-1 rounded-full"
+                className="bg-yellow-500 btn text-white cursor-pointer px-6 md:py-2 py-1 rounded-full"
               >
-                Follow
+                Subscribe
               </button>
             )}
           </div>
         </div>
 
         {/* Like, Dislike, Bookmark, and Action Buttons */}
-        <div className="sm:w-2/5 sm:mr-2 my-3 sm:my-0 text-right mt-2 sm:mt-0 overflow-auto flex gap-4 items-center">
+       <div
+  className="sm:w-3/5 sm:mr-5 my-3 sm:my-0 text-right mt-2 sm:mt-0 overflow-auto flex gap-2 items-center"
+  style={{ marginRight: "-210px", marginTop: "35px" }}
+>
+
         <button
   disabled={loading}
   onClick={handleLikeClick}
   className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-    isLiked ? "bg-green-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+    isLiked ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
   }`}
 >
   {isLiked ? <AiFillLike size="24" /> : <AiOutlineLike size="24" />}
@@ -363,12 +405,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
               )}
             </svg>
           </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-full transition-colors"
-          >
-            <MdChat size="24" />
-            Comments
-          </button>
+        
           <button
             className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-full transition-colors"
           >
@@ -380,9 +417,10 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
       <hr />
 
       {/* Comment Section */}
+      
       <form
         onSubmit={handleCommentSubmit}
-        className="sm:w-5/6 w-11/12 my-20 relative m-auto bg-white rounded-md"
+        className="sm:w-5/6 w-15/20 my-20  ml-25 relative m-auto bg-grey rounded-md"
       >
         <textarea
           name=""
@@ -393,20 +431,21 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             setComment(e.target.value)
           }
-          rows={10}
+          rows={3}
           className="w-full p-3 border-0 rounded-lg outline-none"
         ></textarea>
+        
         <button
           disabled={loading}
-          className="bg-green-400 p-2 text-white absolute bottom-2 right-4 border-0 rounded-lg outline-none"
+          className="bg-yellow-500 p-2 text-white absolute bottom-5 right-0 border-0 rounded-lg outline-none"
         >
           Comment
         </button>
       </form>
 
-      {/* Display Comments */}
-      {commentData.length > 0 ? (
-        <div className="mt-1 sm:w-5/6 w-11/12 my-20 relative m-auto">
+     {/* Display Comments */}
+     {commentData.length > 0 ? (
+        <div className="mt-1 sm:w-4/6 w-11/12 my-20 ml-20 relative m-auto bg-black-500">
           <h3 className="break-words sm:text-base text-sm mb-2">
             {commentData.length} Comments
           </h3>
@@ -429,15 +468,73 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
                     {formatDateAgo(comment.chatedAt ?? video.updatedAt)}
                   </h4>
                 </div>
-                <p className="break-words sm:text-base text-sm">
-                  {comment.text}
-                </p>
+                <p className="break-words sm:text-base text-sm">{comment.text}</p>
+
+                {/* Reply Button */}
+                <button
+                  className="text-sm text-blue-500 hover:underline"
+                  onClick={() =>
+                    setReplyingTo(replyingTo === comment._id ? null : comment._id)
+                  }
+                >
+                  {replyingTo === comment._id ? "Cancel" : "Reply"}
+                </button>
+
+                {/* Reply Input */}
+                {replyingTo === comment._id && (
+                  <form
+                    onSubmit={(e) => handleReplySubmit(e, comment._id)}
+                    className="mt-2"
+                  >
+                    <textarea
+                      placeholder="Add a reply..."
+                      value={reply}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setReply(e.target.value)
+                      }
+                      rows={2}
+                      className="w-full p-2 border rounded-md outline-none"
+                    ></textarea>
+                    <button
+                      disabled={loading}
+                      className="bg-yellow-500 p-2 mt-1 text-white border-0 rounded-lg"
+                    >
+                      Reply
+                    </button>
+                  </form>
+                )}
+
+                {/* Replies Display */}
+                {comment.replies?.length > 0 && (
+                  <div className="ml-8 mt-3">
+                    {comment.replies.map((reply: any, replyIndex: number) => (
+                      <div key={replyIndex} className="flex gap-2 mb-2">
+                        <img
+                          src={reply.avatar}
+                          className="bg-white rounded-full w-6 h-6 flex-shrink-0"
+                          alt="Reply Avatar"
+                        />
+                        <div>
+                          <h5 className="text-sm font-semibold">
+                            {reply.username}
+                          </h5>
+                          <p className="text-sm">{reply.text}</p>
+                          <span className="text-xs text-gray-500">
+                            {formatDateAgo(reply.chatedAt ?? video.updatedAt)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           ))}
         </div>
       ) : (
-        <p className="mt-1 sm:w-5/6 w-11/12 my-20 relative m-auto">No comments</p>
+        <p className="mt-1 sm:w-5/6 w-11/12 my-20 ml-13 relative m-auto">
+          No comments
+        </p>
       )}
     </div>
   );

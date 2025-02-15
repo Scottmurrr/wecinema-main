@@ -166,6 +166,7 @@ router.patch("/unhide/:id", async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 // Like or Unlike a Video
 router.post('/like/:videoId', authenticateMiddleware, async (req, res) => {
     const { action, userId } = req.body;
@@ -669,49 +670,60 @@ router.post("/:id/comment", authenticateMiddleware, async (req, res) => {
 	}
 });
 
-// Route for replying to a comment on a video by ID
-router.post(
-	"/:id/comment/:commentId",
-	authenticateMiddleware,
-	async (req, res) => {
-		try {
-			const { userId, text } = req.body;
-			const video = await Videos.findById(req.params.id);
-
-			if (!video) {
-				return res.status(404).json({ error: "Video not found" });
-			}
-
-			const comment = video.comments.find(function (el) {
-				// Assuming el.id is a string, or you might need to convert it to a string
-				return el.id.toString() === commentIdToFind.toString();
-			});
-
-			if (!comment) {
-				return res.status(404).json({ error: "Comment not found" });
-			}
-
-			const user = await User.findById(userId);
-			const newReply = {
-				avatar: user.avatar,
-				username: user.username,
-				text,
-				chatedAt: new Date(),
-			};
-
-			// Add the new reply to the comment's replies array
-			comment.replies.push(newReply);
-
-			// Save the updated video with the new reply
-			await video.save();
-
-			res.json(video);
-		} catch (error) {
-			console.error("Error replying to comment:", error);
-			res.status(500).json({ error: "Internal Server Error" });
-		}
-	}
-);
+router.post("/:id/comment/:commentId", authenticateMiddleware, async (req, res) => {
+    try {
+      const { userId, text } = req.body;
+  
+      // Validate request body
+      if (!userId || !text) {
+        return res.status(400).json({ error: "userId and text are required." });
+      }
+  
+      // Find the video by ID
+      const video = await Videos.findById(req.params.id);
+      if (!video) {
+        return res.status(404).json({ error: "Video not found" });
+      }
+  
+      // Find the comment by its ID
+      const comment = video.comments.find((comment) => 
+        comment._id.toString() === req.params.commentId
+      );
+  
+      if (!comment) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+  
+      // Fetch user information for the reply
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      // Create a new reply object
+      const newReply = {
+        avatar: user.avatar,
+        username: user.username,
+        text,
+        createdAt: new Date(),
+      };
+  
+      // Add the reply to the comment's replies array
+      if (!comment.replies) {
+        comment.replies = [];
+      }
+      comment.replies.push(newReply);
+  
+      // Save the updated video
+      await video.save();
+  
+      res.json({ comments: video.comments });
+    } catch (error) {
+      console.error("Error replying to comment:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+  
 // Route for getting videos by genre
 router.get("/category/:genre", async (req, res) => {
 	try {

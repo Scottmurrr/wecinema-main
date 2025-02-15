@@ -457,8 +457,29 @@ router.post('/save-transaction', async (req, res) => {
 	  });
   
 	  await newTransaction.save();
-  
-	  await User.updateOne({ _id: userId }, { hasPaid: true },{ lastPaymentDate: new Date()});
+	// Find user and log before updating
+	const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+
+    // Log user data before attempting update
+    console.log('Before update:', user);
+
+    // Now attempt the update with findOneAndUpdate
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId }, 
+      {
+        $set: {
+          hasPaid: true,
+          lastPayment: new Date()  // Ensure the current date is used here
+        }
+      },
+      { new: true }  // Ensure that the updated document is returned
+    );
+
+    // Log the updated user document
+    console.log('Updated user:', updatedUser);
   
 	  res.status(201).send({ message: 'Transaction saved and user payment status updated successfully!' });
 	} catch (error) {

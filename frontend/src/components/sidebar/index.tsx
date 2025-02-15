@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const fetchPaymentStatus = async (userId: any) => {
     try {
       const response = await axios.get(
-        `https://wecinema-main-vcam.onrender.com/user/payment-status/${userId}`
+        `https://wecinema.co/user/payment-status/${userId}`
       );
       setHasPaid(response.data.hasPaid);
     } catch (error) {
@@ -124,9 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={toggleUploadModal}
           >
             <BiCameraMovie size="20" />
-            <span className="text-sm">{`Upload ${
-              expand ? "Movie" : ""
-            }`}</span>
+            <span className="text-sm">{`Upload ${expand ? "Movie" : ""}`}</span>
           </div>
           <div
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
@@ -135,11 +133,9 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={toggleUploadScriptModal}
           >
             <MdOutlineDescription size="20" />
-            <span className="text-sm">{`${
-              expand ? "Upload scripts" : "Add Scripts"
-            }`}</span>
+            <span className="text-sm">{`${expand ? "Upload scripts" : "Add Scripts"}`}</span>
           </div>
-    
+
           <Link
             to={tokenData ? `/user/${tokenData.userId}` : "#"}
             onClick={(event) => {

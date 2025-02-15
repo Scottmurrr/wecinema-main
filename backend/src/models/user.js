@@ -34,7 +34,7 @@ const userSchema = new Schema({
     },
    
     hasPaid: { type: Boolean, default: false },
-    lastPaymentDate: { type: Date, default: null },
+    lastPayment: { type: Date } ,
 
     // isSubscribed: { type: Boolean, default: false },
     

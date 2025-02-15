@@ -1,14 +1,16 @@
 import axios, { AxiosResponse, AxiosError, Method } from "axios";
 import { toast } from "react-toastify";
 
-const API_BASE_URL = "https://wecinema-main-vcam.onrender.com"; //"https:/wecinema-main-vcam.onrender.com/";///
+// const API_BASE_URL = "https://wecinema.co/api/"; //"https:/wecinema-main-vcam.onrender.com/";///
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: 'https://wecinema.co/api/',
+    withCredentials: true, // Important for cookies
     headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
     },
 });
+
 
 // Add a request interceptor to add the JWT token to the headers
 api.interceptors.request.use(
@@ -36,7 +38,7 @@ const handleSuccess = <T extends ApiResponse>(
     message?: string
 ): T => {
     setLoading(false);
-    if (method === "post" || method === "put" || method === "patch" || method === "delete") {
+    if (  method === "delete") {
         toast.success(response.data.message || message || "Successful");
     }
     return response.data;
@@ -76,6 +78,7 @@ export const postRequest = <T>(
 ): Promise<T> =>
     api
         .post(url, data)
+        
         .then((response) => handleSuccess(response, "post", setLoading, message))
         .catch((error) => handleError(error, "post", setLoading));
 
