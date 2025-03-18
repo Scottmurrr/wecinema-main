@@ -7,7 +7,7 @@ import { Itoken, decodeToken } from "../../utilities/helperfFunction";
 import moment from "moment";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import { motion } from "framer-motion"; // Animation library
 interface IPopupProps {
 	type: string | undefined;
 	show?: boolean;
@@ -69,7 +69,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 			const checkUserPaymentStatus = async () => {
 				if (decoded.userId) {
 					try {
-						const response = await axios.get(`https://wecinema-main-vcam.onrender.com/user/payment-status/${decoded.userId}`);
+						const response = await axios.get(`https://wecinema.co/api/user/payment-status/${decoded.userId}`);
 						setHasPaid(response.data.hasPaid);
 					} catch (error) {
 						console.error("Error checking payment status:", error);
@@ -97,7 +97,6 @@ const Popup: React.FC<IPopupProps> = React.memo(
 				const result: any = await postRequest(
 					"user/login",
 					payload,
-					
 					setLoading
 				);
 				console.log("Post success:", result);
@@ -110,7 +109,6 @@ const Popup: React.FC<IPopupProps> = React.memo(
 				}, 1000);
 			} catch (error) {
 				setLoading(false);
-
 				console.error("Post error:", error);
 			}
 		};
@@ -191,7 +189,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 						script: description,
 						genre: selectedItems.map((category: any) => category.value),
 						theme: selectItems.map((category: any) => category.value),
-						author: decodedToken?.username ?? "",
+						author: decodedToken?.userId ?? "33",
 					};
 					await postRequest("video/scripts", payload, setLoading);
 					setShow(false);
@@ -420,7 +418,7 @@ const Popup: React.FC<IPopupProps> = React.memo(
 						} bg-opacity-90 backdrop-filter backdrop-blur-15 flex items-center justify-center transition-opacity ease-in-out duration-300`}
 					>
 						<div
-							className={`sm:w-2/6 modal min-h-2/6 w-5/6 bg-white rounded-md p-6
+							className={`sm:w-3/6 modal min-h-2/6 w-5/6 bg-white rounded-md p-6
               transition-transform transform translate-y-0 ease-in-out relative cursor-pointer shadow-md
               }`}
 						>
@@ -432,8 +430,20 @@ const Popup: React.FC<IPopupProps> = React.memo(
 									}}
 								/>
 							</header>
-							<form onSubmit={handleLoginSubmit}>
-								<input
+							<motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-md mx-auto mt-10 p-8 bg-white shadow-2xl rounded-2xl border border-gray-200"
+    >
+      <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
+        Welcome Back 👋
+      </h2>
+
+      <form onSubmit={handleLoginSubmit} className="space-y-5">
+        <motion.div whileHover={{ scale: 1.02 }}>
+          <label className="block text-gray-600 font-medium">Email</label>
+          <input
 									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
 									placeholder="email"
 									type="email"
@@ -443,7 +453,11 @@ const Popup: React.FC<IPopupProps> = React.memo(
 										setEmail(e.target.value);
 									}}
 								/>
-								<input
+        </motion.div>
+
+        <motion.div whileHover={{ scale: 1.02 }}>
+          <label className="block text-gray-600 font-medium">Password</label>
+		  						<input
 									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
 									placeholder="**************** "
 									type="password"
@@ -453,28 +467,45 @@ const Popup: React.FC<IPopupProps> = React.memo(
 										setPassword(e.target.value);
 									}}
 								/>
-								<button
-									disabled={loading}
-									className="rounded-md px-4 py-2 w-full my-3 bg-blue-500 text-white"
-								>
-									Sign in
-								</button>
-								<div className="flex sm:flex-row flex-col gap-4 justify-between items-center">
-									<a
-										href="#"
-										className=" sm:my-3 text-center italic hover:text-blue-600"
-									>
-										Forgot password?
-									</a>
-									<a
-										href="#"
-										className=" sm:my-3 text-center italic hover:text-blue-600"
-									>
-										Don't have an account?
-									</a>
-								</div>
-								<hr className="my-4" />
-							</form>{" "}
+        </motion.div>
+
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          disabled={loading}
+          className={`w-full mt-4 py-3 rounded-lg text-white font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+            loading
+              ? "bg-blue-300 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
+          }`}
+        >
+          {loading ? (
+            <>
+              <span className="animate-spin border-2 border-t-transparent border-white rounded-full w-5 h-5"></span>
+              Signing in...
+            </>
+          ) : (
+            "Sign in"
+          )}
+        </motion.button>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-3">
+          <a
+            href="#"
+            className="text-sm text-gray-500 hover:text-blue-500 transition-all duration-300"
+          >
+            Forgot password?
+          </a>
+          <a
+            href="/hypemode"
+            className="text-sm text-gray-500 hover:text-blue-500 transition-all duration-300"
+          >
+            Hypemode?
+          </a>
+        </div>
+
+        <hr className="mt-6 border-gray-300" />
+      </form>
+    </motion.div>
 						</div>
 					</div>
 				</div>
@@ -654,54 +685,75 @@ const Popup: React.FC<IPopupProps> = React.memo(
               transition-transform transform translate-y-0 ease-in-out relative cursor-pointer shadow-md
               }`}
 						>
-							<header className="flex gap-4 justify-between items-center">
-								<h2>Sign up to Wecinema</h2>
-								<FaTimes onClick={() => setShow(false)} />
-							</header>
-							<form onSubmit={handleRegisterSubmit}>
-								<input
-									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
-									placeholder="Username"
-									type="text"
-									value={username}
-									onChange={(e: any) => setUsername(e.target.value)}
-								/>
-								<input
-									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
-									placeholder="email "
-									type="email "
-									value={email}
-									onChange={(e: any) => setEmail(e.target.value)}
-								/>
-								<input
-									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
-									placeholder="**************** "
-									type="password "
-									value={password}
-									onChange={(e: any) => setPassword(e.target.value)}
-								/>
-								<input
-									className="rounded-md px-4 py-2 w-full mt-3 border outline-none"
-									placeholder="date of birth"
-									type="date"
-									value={dob}
-									onChange={(e: any) => setDob(e.target.value)}
-								/>
-								<button
-									disabled={loading}
-									className="rounded-md px-4 py-2 w-full my-3 bg-blue-500 text-white"
-								>
-									Sign up
-								</button>
-								<div className="flex gap-4 justify-between items-center">
-									<a
-										href="#"
-										className=" my-3 text-center italic hover:text-blue-600"
-									>
-										Already have an account?
-									</a>
-								</div>
-							</form>
+						
+						<motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }} // Instant close effect
+      transition={{ duration: 0.5 }}
+      className="max-w-md mx-auto mt-10 p-8 bg-white shadow-2xl rounded-2xl border border-gray-200"
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-700">Sign up to Wecinema</h2>
+        <FaTimes
+          className="text-gray-500 cursor-pointer hover:text-red-500 transition-all duration-100"
+          onClick={() => setShow(false)} // Close instantly
+        />
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleRegisterSubmit} className="space-y-5">
+        <input
+          className="rounded-lg px-4 py-3 w-full border border-gray-300 focus:ring-4 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all duration-300"
+          placeholder="Username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <input
+          className="rounded-lg px-4 py-3 w-full border border-gray-300 focus:ring-4 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all duration-300"
+          placeholder="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          className="rounded-lg px-4 py-3 w-full border border-gray-300 focus:ring-4 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all duration-300"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <input
+          className="rounded-lg px-4 py-3 w-full border border-gray-300 focus:ring-4 focus:ring-blue-300 focus:border-blue-500 outline-none transition-all duration-300"
+          type="date"
+          value={dob}
+          onChange={(e) => setDob(e.target.value)}
+          required
+        />
+        <button
+          disabled={loading}
+          className={`w-full mt-4 py-3 rounded-lg text-white font-semibold text-lg transition-all duration-300 ${
+            loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {loading ? "Signing up..." : "Sign up"}
+        </button>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-3">
+          <a href="#" className="text-sm text-gray-500 hover:text-blue-500">
+            Already have an account?
+          </a>
+          <a href="/hypemode" className="text-sm text-gray-500 hover:text-blue-500">
+            Hypemode?
+          </a>
+        </div>
+      </form>
+    </motion.div>
 						</div>
 					</div>
 				</div>

@@ -110,34 +110,35 @@ const PaymentComponent = () => {
   const [setUser] = useState<any>({});
   const [redirect, setRedirect] = useState(false); // New state for redirect
 
+  const [showOverlay, setShowOverlay] = useState(false);
   const token = localStorage.getItem("token") || null;
   let userId = null;
   let username = null;
 
   if (token) {
     const tokenData = decodeToken(token);
-    console.log('Token Data:', tokenData);
+    // console.log('Token Data:', tokenData);
 
     userId = tokenData.userId;
     username = tokenData.username;
 
-    console.log("User ID:", userId);
-    console.log("Username:", username);
+    // console.log("User ID:", userId);
+    // console.log("Username:", username);
   }
 
   useEffect(() => {
     if (!userId) {
-      console.error('User ID is not defined.');
+      // console.error('User ID is not defined.');
       return;
     }
 
     const fetchData = async () => {
       try {
         const result = await getRequest("/user/" + userId, setLoading);
-        console.log('Fetched user data:', result);
+        // console.log('Fetched user data:', result);
         setUser(result);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        // console.error("Error fetching data:", error);
       }
     }
 
@@ -145,14 +146,30 @@ const PaymentComponent = () => {
 
     const checkUserPaymentStatus = async () => {
       try {
-        const response = await axios.get(`https://wecinema.co/api/user/payment-status/${userId}`);
-        const { hasPaid, lastPaymentDate } = response.data;
-        if(hasPaid) {
-        setRedirect(true);
+        const response = await axios.get(`https://wecinema.co/api/user/${userId}`);
+        const user = response.data;
+        if (user.subscriptionType === undefined) {
+          // Stay on the payment page (do nothing)
+          // console.log("Subscription is undefined. Staying on payment page.");
+          return;
+        }
+        if(user.subscriptionType != subscriptionType) {
+          setPopupMessage(`Your subscription type is '${user.subscriptionType}'. Please log in again.`);
           
+          setShowPopup(true);
+          setShowOverlay(true); // Show blank background
+          // Remove token & log out
+          localStorage.removeItem("token");
+          setTimeout(() => {
+            navigate("/hypemode");
+          }, 4000); 
+        
+          
+        }else{
+          setRedirect(true);
         }
         const today:any = new Date();
-        const lastPayment:any = new Date(lastPaymentDate);
+        const lastPayment:any = new Date(user.lastPaymentDate);
         const diffTime = Math.abs(today - lastPayment);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -163,10 +180,10 @@ const PaymentComponent = () => {
           setIsError(true);
           setShowPopup(true);
         } else {
-          setUserHasPaid(hasPaid);
+          setUserHasPaid(user.hasPaid);
         }
       } catch (error) {
-        console.error('Error fetching user payment status.:', error);
+        // console.error('Error fetching user payment status.:', error);
       }
     };
 
@@ -181,7 +198,7 @@ const PaymentComponent = () => {
 
   const handlePaymentSuccess = async (details:any) => {
     try {
-      console.log('Payment details:', details);
+      // console.log('Payment details:', details);
       
       if (!details.id || !details.payer) {
         throw new Error('Incomplete transaction details');
@@ -195,8 +212,9 @@ const PaymentComponent = () => {
         payerId: details.payer.payer_id,
         amount: amount,
         currency: 'USD',
+        subscriptionType
       });
-      console.log('Transaction saved:', response.data);
+      // console.log('Transaction saved:', response.data);
 
       setPopupMessage('Transaction completed successfully!');
       setIsError(false);
@@ -211,7 +229,7 @@ const PaymentComponent = () => {
       }, 2000); // Adjust the delay to match your popup display time
 
     } catch (error) {
-      console.error('Failed to save transaction:', error);
+      // console.error('Failed to save transaction:', error);
       handlePaymentError('Failed to save transaction. Please try again.');
     }
   };
@@ -225,7 +243,32 @@ const PaymentComponent = () => {
 
   return (
     <Layout expand={false} hasHeader={false}>
+      
       <Container>
+      {showOverlay && (
+  <div style={{
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark overlay
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000
+  }}>
+    <div style={{
+      backgroundColor: "#fff",
+      padding: "20px",
+      borderRadius: "8px",
+      textAlign: "center"
+    }}>
+      <p>{popupMessage}</p>
+    </div>
+  </div>
+)}
+
         {!userHasPaid ? (
           <>
             <SubscriptionBox>

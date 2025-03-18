@@ -32,7 +32,7 @@ const GenrePage: React.FC = () => {
 
   useEffect(() => {
     if (!userId) {
-      console.error('User ID is not defined.');
+      // console.error('User ID is not defined.');
       return;
     }
 
@@ -41,28 +41,28 @@ const GenrePage: React.FC = () => {
         const result = await getRequest(`/user/${userId}`, setLoading);
         setUser(result);
       } catch (error) {
-        console.error("Error fetching data.:", error);
+        // console.error("Error fetching data.:", error);
       }
     };
 
     const checkUserPaymentStatus = async () => {
       try {
-        const response = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${userId}`);
+        const response = await axios.get(`https://wecinema.co/api/user/payment-status/${userId}`);
         const { hasPaid } = response.data;
         setUserHasPaid(hasPaid);
       } catch (error) {
-        console.error('Error fetching user payment status:', error);
+        // console.error('Error fetching user payment status:', error);
       }
     };
 
     const fetchPaidUsers = async () => {
       try {
-        const response = await axios.get(`https://wecinema-main.vercel.app/user/paid-users`);
+        const response = await axios.get(`https://wecinema.co/api/user/paid-users`);
         const users = response.data;
         const filteredUsers = users.filter((paidUser: any) => paidUser._id !== userId);
         setPaidUsers(filteredUsers);
       } catch (error) {
-        console.error('Error fetching paid users:', error);
+        // console.error('Error fetching paid users:', error);
       }
     };
 
@@ -82,7 +82,7 @@ const GenrePage: React.FC = () => {
 
   const startChat = (chatUserId: string) => {
     if (!userId || !chatUserId) {
-      console.error('User ID or Chat User ID is not defined.');
+      // console.error('User ID or Chat User ID is not defined.');
       return;
     }
 

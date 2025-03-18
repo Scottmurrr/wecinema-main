@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BsDot } from "react-icons/bs";
-import { MdChat, MdPlayArrow, MdUpload, MdVerifiedUser } from "react-icons/md";
+import {  MdPlayArrow, MdUpload, MdVerifiedUser } from "react-icons/md";
 import { AiFillDislike, AiFillLike, AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
 import { formatDateAgo, isUserIdInArray } from "../../utilities/helperfFunction";
 import { getRequest, postRequest, putRequest } from "../../api";
@@ -20,10 +20,13 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   const [videoLikesLength, setVideoLikesLength] = useState(video?.likes?.length ?? 0);
   const [videoDislikesLength, setVideoDislikesLength] = useState(video?.dislikes?.length ?? 0);
   const [views, setViews] = useState(0); // State for video views
-  const [likes, setLikes] = useState(0); // State for video views
   const [reply, setReply] = useState<string>(""); // State to handle reply input
   const [replyingTo, setReplyingTo] = useState<string | null>(null); // State to track which comment is being replied to
-
+  const [likesCount, setLikesCount] = useState(0);
+  const [dislikesCount, setdisLikesCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(
+    video?.author?.followers?.includes(tokenData?.userId)
+  );
   const [userHasPaid, setUserHasPaid] = useState(false);
   const [currentUserHasPaid, setCurrentUserHasPaid] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -46,15 +49,19 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
         const viewsResult: any = await getRequest(`/video/views/${video._id}`, setLoading);
         setViews(viewsResult.views);
   
-        const likesResult: any = await getRequest(`/video/like/${video._id}`, setLoading);
-        setLikes(likesResult.likes);
-        setLikes(likes);
-  
-        const response = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${video.author._id}`);
+        const likesResult: any = await getRequest(`/video/likes/${video._id}`, setLoading);
+        setLikesCount(likesResult.likesCount);
+        setIsLiked(likesResult.likes.includes(tokenData.userId)); 
+        
+        const dislikesResult: any = await getRequest(`/video/dislike/${video._id}`, setLoading);
+        setdisLikesCount(dislikesResult.likesCount);
+        setIsDisliked(dislikesResult.likes.includes(tokenData.userId)); 
+       
+        const response = await axios.get(`https://wecinema.co/api/user/payment-status/${video.author._id}`);
         setUserHasPaid(response.data.hasPaid);
   
         if (tokenData) {
-          const currentUserResponse = await axios.get(`https://wecinema-main.vercel.app/user/payment-status/${tokenData.userId}`);
+          const currentUserResponse = await axios.get(`https://wecinema.co/api/user/payment-status/${tokenData.userId}`);
           setCurrentUserHasPaid(currentUserResponse.data.hasPaid);
         }
   
@@ -78,6 +85,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
     setShowModal(false);
     navigate('/');
   };
+ 
 
   const handleLikeClick = async () => {
     try {
@@ -173,25 +181,31 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
   };
   
   const handleFollowSubmit = async (action: string) => {
+    if (!tokenData?.userId) return;
+
     try {
       setLoading(true);
-      let payload = {
+      setIsFollowing(action === "follow");
+
+      const payload = {
         action,
-        userId: tokenData?.userId,
+        userId: tokenData.userId,
       };
+
       const result: any = await putRequest(
-        "user/" + video.author?._id + "/follow",
+        `user/${video.author?._id}/follow`,
         payload,
-        setLoading,
-        // "Followed!"
+        setLoading
       );
-      console.log("Post success:", result);
-      setComment("");
+
+      console.log("Follow action success:", result);
     } catch (error) {
       setLoading(false);
-      console.error("Post error:", error);
+      setIsFollowing(action !== "follow"); // Revert state on error
+      console.error("Follow action error:", error);
     }
   };
+  
 
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -247,12 +261,18 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
 
   const handleVideoPlay = async () => {
     try {
-      const result: any = await putRequest(`/video/view/${video._id}`, {}, setLoading);
-      setViews(result.views);
+        const userId =  tokenData?.userId;// Replace with actual userId (from session, context, etc.)
+        const result = await putRequest(
+            `/video/view/${video._id}`, 
+            { userId }, // Send userId in the request body
+            setLoading
+        );
+        setViews(result.views); // Update views count with the result
     } catch (error) {
-      console.error("Error incrementing views:", error);
+        console.error("Error incrementing views:", error);
     }
-  };
+};
+
 
   if (showModal) {
     return (
@@ -292,22 +312,27 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
     <div className="">
       {/* Video Player */}
       <div
-  className="relative w-full min-w-screen-xl bg-black max-w-4xl rounded-md"
-  style={{ marginTop: 17, marginLeft: 20  }}
+  className="relative w-[80%] sm:w-full min-w-0 sm:min-w-screen-xl bg-white max-w-3xl rounded-md mx-auto"
+  style={{ marginTop: 17, marginLeft: 10, marginRight: 10 }}
 >
+  {loading && <MdPlayArrow className="absolute inset-0 m-auto text-white text-5xl" />}
+  
+  <video
+    className="w-full h-[220px] sm:h-[400px] rounded-lg"
+    controls
+    onPlay={handleVideoPlay}
+  >
+    <source src={video?.file} type="video/mp4" />
+    <source src={video?.file} type="video/quicktime" />
+    Your browser does not support the video tag.
+  </video>
+</div>
 
-        {loading && <MdPlayArrow />}
-        <video width="100%" height="400" controls onPlay={handleVideoPlay}  style={{ }} >
-          <source src={video?.file} type="video/mp4" />
-          <source src={video?.file} type="video/quicktime" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
 
       {/* Video Metadata and Actions */}
       <div className="mt-4 sm:flex justify-between items-center border-b  pb-5 border-grey-200">
         {/* Video Information and Comments */}
-        <div className="sm:w-3/5 ml-4 ">
+        <div className="sm:w-4/5 ml-4 ">
           {/* Video Title */}
           <h1 className="md:text-2xl font-bold mb-2 text-xl">{video?.title}</h1>
 
@@ -340,80 +365,50 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
                 </div>
               </a>
             </address>
-            {isUserIdInArray(tokenData?.userId, video?.author?.followers) ? (
-              <button
-                onClick={() => handleFollowSubmit("unfollow")}
-                className="bg-yellow-500 btn cursor-pointer text-white px-6 md:py-2 py-1 rounded-full"
-              >
-                UnSubscribe
-              </button>
-            ) : (
-              <button
-                onClick={() => handleFollowSubmit("follow")}
-                className="bg-yellow-500 btn text-white cursor-pointer px-6 md:py-2 py-1 rounded-full"
-              >
-                Subscribe
-              </button>
-            )}
+            <button
+      onClick={() => handleFollowSubmit(isFollowing ? "unfollow" : "follow")}
+      disabled={loading}
+      className={`btn text-white cursor-pointer px-6 md:py-2 py-1 rounded-full ${
+        isFollowing ? "bg-gray-500" : "bg-yellow-500"
+      }`}
+    >
+      {loading ? "Processing..." : isFollowing ? "Unsubscribe" : "Subscribe"}
+    </button>
           </div>
         </div>
 
         {/* Like, Dislike, Bookmark, and Action Buttons */}
-       <div
-  className="sm:w-3/5 sm:mr-5 my-3 sm:my-0 text-right mt-2 sm:mt-0 overflow-auto flex gap-2 items-center"
-  style={{ marginRight: "-210px", marginTop: "35px" }}
->
-
+        <div className="button-container">
         <button
-  disabled={loading}
-  onClick={handleLikeClick}
-  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-    isLiked ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-  }`}
->
-  {isLiked ? <AiFillLike size="24" /> : <AiOutlineLike size="24" />}
-  {videoLikesLength}
-</button>
-<button
-  disabled={loading}
-  onClick={handleDislikeClick}
-  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-    isDisliked ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-  }`}
->
-  {isDisliked ? <AiFillDislike size="24" /> : <AiOutlineDislike size="24" />}
-  {videoDislikesLength}
-</button>
+      disabled={loading}
+      onClick={handleLikeClick}
+      className={`button ${isLiked ? "like" : "bookmark"}`}
+    >
+      {isLiked ? <AiFillLike size="20" /> : <AiOutlineLike size="20" />}{" "}
+      {likesCount}
+    </button>
+      <button disabled={loading} onClick={handleDislikeClick} className={`button ${isDisliked ? "dislike" : "bookmark"}`}>
+        {isDisliked ? <AiFillDislike size="20" /> : <AiOutlineDislike size="20" />}
+        {dislikesCount}
+      </button>
 
-          <button
-            onClick={toggleBookmark}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-              isBookmarked ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              {isBookmarked ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              )}
-            </svg>
-          </button>
-        
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-full transition-colors"
-          >
-            <MdUpload size="24" />
-            Share
-          </button>
-        </div>
-      </div>
+      <button onClick={toggleBookmark} className={`button ${isBookmarked ? "like" : "bookmark"}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {isBookmarked ? (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          )}
+        </svg>
+      </button>
+
+      <button className="button share">
+        <MdUpload size="20" />
+        Share
+      </button>
+    </div>
+    </div>
+
       <hr />
 
       {/* Comment Section */}
@@ -437,7 +432,7 @@ const VideoPlayer: React.FC<any> = ({ video, tokenData }) => {
         
         <button
           disabled={loading}
-          className="bg-yellow-500 p-2 text-white absolute bottom-5 right-0 border-0 rounded-lg outline-none"
+          className="bg-yellow-500 p-2 text-white absolute bottom-5 right-5 border-0 rounded-lg outline-none"
         >
           Comment
         </button>

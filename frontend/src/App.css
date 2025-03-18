@@ -26,7 +26,42 @@ button:disabled {
 .bg-dark {
 	background: #000000 !important;
 }
+/* ProfilePage.css */
 
+/* Smooth transitions for all interactive elements */
+button, input, .rounded-full, .object-cover, .overflow-y-hidden {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover effects for buttons */
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient overlay for cover image */
+.bg-gradient-to-t {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+}
+
+/* Avatar hover effect */
+.rounded-full:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Script card hover effect */
+.overflow-y-hidden:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Input focus effect */
+input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
 .body-dark {
 	background: rgb(0, 0, 0) !important;
 }

@@ -6,11 +6,11 @@ interface PayPalButtonWrapperProps {
   userId: string | null;
   onSuccess: (details: any) => void;
   onError: (message: string) => void;
-}
-
+}//ATCFEkRI4lCXYSceFX1O3WVIym-HN0raTtEpXUUH8hTDI5kmPbbaWqI6I0K6nLRap16jZJoO33HtcFy7
+// 
 const PayPalButtonWrapper: React.FC<PayPalButtonWrapperProps> = ({ amount, userId, onSuccess, onError }) => {
   return (
-    <PayPalScriptProvider options={{ "clientId": "ATCFEkRI4lCXYSceFX1O3WVIym-HN0raTtEpXUUH8hTDI5kmPbbaWqI6I0K6nLRap16jZJoO33HtcFy7", "currency": "USD" }}>
+    <PayPalScriptProvider options={{ "clientId": "AU1P__pb3PXecIsKWT9jzcW3Ji9HLQ02yn9jmAVjIV20solNFia6CzaDQfGPbmSvBMCY1m7Q0zhuaG5z", "currency": "USD" }}>
       <PayPalButtons
         style={{ layout: 'vertical' }}
         createOrder={async (_, actions) => {
@@ -31,7 +31,7 @@ const PayPalButtonWrapper: React.FC<PayPalButtonWrapperProps> = ({ amount, userI
             });
             return orderId;
           } catch (error) {
-            console.error("Error creating order:", error);
+            // console.error("Error creating order:", error);
             onError('Error creating order. Please try again.');
             throw error;
           }
@@ -43,16 +43,16 @@ const PayPalButtonWrapper: React.FC<PayPalButtonWrapperProps> = ({ amount, userI
             }
             // Capture Order
             const details = await actions.order.capture();
-            console.log('Payment successful:', details);
+            // console.log('Payment successful:', details);
             onSuccess(details);
           } catch (error) {
-            console.error('Capture error:', error);
+            // console.error('Capture error:', error);
             onError('Capture error. Please try again.');
             throw error;
           }
         }}
         onError={(err) => {
-          console.error('PayPal payment error:', err);
+          // console.error('PayPal payment error:', err);
           onError('PayPal payment error. Please try again.');
         }}
       />

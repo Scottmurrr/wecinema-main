@@ -6,8 +6,9 @@ const morgan = require("morgan");
 const cors = require("cors");
 const app = express();
 
+
 app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
     next();
 });
@@ -18,7 +19,9 @@ app.use(express.json());
 const allowedOrigins = [
     "http://www.wecinema.co",
     "https://www.wecinema.co",
+    "https://www.wecinema.co/api",
     "http://wecinema.co",
+    "http://wecinema.co/api",
     "https://wecinema.co",
     "http://localhost:3000",
     "https://wecinema-admin.onrender.com",
@@ -60,9 +63,9 @@ app.use("/video", VideoController);
 app.use("/user", UserController);
 
 // Connect to the database
-connectDB("mongodb+srv://hamzamanzoor046:9Jf9tuRZv2bEvKES@wecinema.15sml.mongodb.net/");
-
-// Start the Express server
+connectDB("mongodb+srv://hamzamanzoor046:9Jf9tuRZv2bEvKES@wecinema.15sml.mongodb.net/database_name?retryWrites=true&w=majority");
+console.log("connected db")
+// Start the Ecxpress server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

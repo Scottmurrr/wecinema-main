@@ -17,6 +17,9 @@ import {
 	ThemePage,
 	SearchPage,
 	TermsAndConditions,
+	HistoryPage,
+	LikedVideoPage,
+	ReportPage
 
 
 } from "../pages";
@@ -34,13 +37,16 @@ const Router: React.FC = () => {
 				<Route path="/ratings/:slug" element={<RatingPage />} />
 				<Route path="/themes/:slug" element={<ThemePage />} />
 				<Route path="/search/:slug" element={<SearchPage />} />
-
 				<Route path="/hypemode" element={<HypeMode />} />
+				<Route path="/report" element={<ReportPage />} />
+				<Route path="/likedvideos" element={<LikedVideoPage />} />
 				<Route path="/payment" element={<PaymentComponent />} />
 				<Route path="/hypemodeprofile" element={<HypeModeProfile />} />
 				<Route path="/chat/:chatId" element={<ChatPage />} />
 
 				<Route path="/videoeditor" element={<VideoEditorPage />} />
+				<Route path="/history" element={<HistoryPage />} />
+
 				<Route path="/customersupport" element={<CustomerSupportPage />} />
 				<Route path="/privacy-policy" element={<PrivacyPolicy />} />
 				<Route path="/terms-and-conditions" element={<TermsAndConditions />} />

@@ -14,6 +14,12 @@ export { default as SearchPage } from "./search";
 export { default as PaymentComponent } from "./payment";
 export { default as PrivacyPolicy } from "./privacypolicy";
 export { default as TermsAndConditions } from "./termsandcondition";
+export { default as HistoryPage } from "./History";
+export { default as LikedVideoPage } from "./LikedVideos";
+export { default as ReportPage } from "./report";
+
+
+
 
 
 

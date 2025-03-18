@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { IoMdHome } from "react-icons/io";
-import { RiMovie2Line } from "react-icons/ri";
+import { RiMovie2Line,RiHeartLine, RiHistoryLine,RiFlagLine } from "react-icons/ri";
 import { LiaSignInAltSolid } from "react-icons/lia";
 import { HiUserAdd } from "react-icons/hi";
 import { FaMoon } from "react-icons/fa";
 import { MdOutlineDescription } from "react-icons/md";
-import { BiCameraMovie } from "react-icons/bi";
+import {  } from "react-icons/bi";
 import { IoSunnyOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { Link, useNavigate } from "react-router-dom";
@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const fetchPaymentStatus = async (userId: any) => {
     try {
       const response = await axios.get(
-        `https://wecinema.co/user/payment-status/${userId}`
+        `https://wecinema.co/api/user/payment-status/${userId}`
       );
       setHasPaid(response.data.hasPaid);
     } catch (error) {
@@ -117,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <TbVideoPlus size="20" />
             <span className="text-sm">Video Editor</span>
           </Link>
-          <div
+          {/* <div
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
               expand ? "" : "flex-col justify-center text-xs gap-1 specific"
             } ${getActiveClass("/upload")}`}
@@ -134,7 +134,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             <MdOutlineDescription size="20" />
             <span className="text-sm">{`${expand ? "Upload scripts" : "Add Scripts"}`}</span>
-          </div>
+          </div> */}
 
           <Link
             to={tokenData ? `/user/${tokenData.userId}` : "#"}
@@ -151,6 +151,25 @@ const Sidebar: React.FC<SidebarProps> = ({
             <CgProfile size="20" />
             <span className="text-sm">Profile</span>
           </Link>
+          <Link
+  to="/history"
+  className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+    expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+  } ${getActiveClass("/history")}`}
+>
+  <RiHistoryLine size={20} />
+  <span className="text-sm">History</span>
+</Link>
+
+<Link
+  to="/likedvideos"
+  className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+    expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+  } ${getActiveClass("/likedvideos")}`}
+>
+  <RiHeartLine size={20} />
+  <span className="text-sm">Liked Videos</span>
+</Link>
         </ul>
       </nav>
 
@@ -247,6 +266,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             <MdOutlinePrivacyTip size="20" />
             <span className="text-sm">Privacy</span>
           </Link>
+          <Link
+  to="/report"
+  className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${
+    expand ? "" : "flex-col justify-center text-xs gap-1 specific"
+  } ${getActiveClass("/report")}`}
+>
+  <RiFlagLine size={20} />
+  <span className="text-sm">Report</span>
+</Link>
           <Link
             to="/terms-and-conditions"
             className={`duration-75 flex gap-4 mx-4 my-2 cursor-pointer items-center ${

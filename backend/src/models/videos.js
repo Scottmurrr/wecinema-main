@@ -31,9 +31,19 @@ const videoSchema = new Schema(
 			type: Schema.Types.Mixed,
 			required: true,
 		},
+		themeCounts: {
+			type: Map,
+			of: Number,
+			default: {}
+		},
 		rating: {
 			type: String,
 			required: true,
+		},
+		ratingCounts: {
+			type: Map,
+			of: Number,
+			default: {}
 		},
 		published: {
 			type: Boolean,

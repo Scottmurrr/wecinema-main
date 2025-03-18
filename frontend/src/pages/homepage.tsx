@@ -81,16 +81,32 @@ const Homepage: React.FC = () => {
     const fetchGenreChartData = async () => {
       try {
         setLoading(true);
-        const genreData: any = await getRequest("/video/genres/graph", setLoading);
-        if (isMounted && genreData) {
+    
+        // Get the last 7 days' date range
+        const today = new Date();
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(today.getDate() - 7);
+    
+        // Format: YYYY-MM-DD
+        const fromDate = sevenDaysAgo.toISOString().split("T")[0];
+        const toDate = today.toISOString().split("T")[0];
+    
+        // Fetch data with date range filter
+        const genreData: any = await getRequest(
+          `/video/genres/graph?from=${fromDate}&to=${toDate}`,
+          setLoading
+        );
+    
+        if (isMounted && genreData && Object.keys(genreData).length > 0) {
           const labels = Object.keys(genreData[Object.keys(genreData)[0]]);
           const datasets = Object.keys(genreData).map((genre: string) => ({
             label: genre,
-            data: labels.map((week: string) => genreData[genre][week]?.count || 0),
+            data: labels.map((date: string) => genreData[genre][date]?.count || 0),
             borderColor: getRandomColor(),
             backgroundColor: getRandomColor(),
             lineTension: 0.4,
           }));
+    
           setGenreChartData({ labels, datasets });
         }
       } catch (error) {
@@ -99,20 +115,34 @@ const Homepage: React.FC = () => {
         setLoading(false);
       }
     };
-
+    
+    
     const fetchThemeChartData = async () => {
       try {
         setLoading(true);
-        const themeData: any = await getRequest("/video/themes/graph", setLoading);
-        if (isMounted && themeData) {
+    
+        // Get last 7 days range
+        const today = new Date();
+        const fromDate = new Date();
+        fromDate.setDate(today.getDate() - 7);
+    
+        // Format to YYYY-MM-DD
+        const from = fromDate.toISOString().split("T")[0];
+        const to = today.toISOString().split("T")[0];
+    
+        // Fetch data with date range
+        const themeData: any = await getRequest(`/video/themes/graph?from=${from}&to=${to}`, setLoading);
+    
+        if (isMounted && themeData && Object.keys(themeData).length > 0) {
           const labels = Object.keys(themeData[Object.keys(themeData)[0]]);
           const datasets = Object.keys(themeData).map((theme: string) => ({
             label: theme,
-            data: labels.map((week: string) => themeData[theme][week]?.count || 0),
+            data: labels.map((date: string) => themeData[theme][date]?.count || 0),
             borderColor: getRandomColor(),
             backgroundColor: getRandomColor(),
             lineTension: 0.4,
           }));
+    
           setThemeChartData({ labels, datasets });
         }
       } catch (error) {
@@ -121,28 +151,50 @@ const Homepage: React.FC = () => {
         setLoading(false);
       }
     };
+    const fetchRatingChartData = async () => {
+  try {
+    setLoading(true);
 
-    const fetchRatingChartData = async () => { // New function for fetching rating data
-      try {
-        setLoading(true);
-        const ratingData: any = await getRequest("/video/ratings/graph", setLoading);
-        if (isMounted && ratingData) {
-          const labels = Object.keys(ratingData[Object.keys(ratingData)[0]]);
-          const datasets = Object.keys(ratingData).map((rating: string) => ({
-            label: rating,
-            data: labels.map((week: string) => ratingData[rating][week]?.count || 0),
-            borderColor: getRandomColor(),
-            backgroundColor: getRandomColor(),
-            lineTension: 0.4,
-          }));
-          setRatingChartData({ labels, datasets });
-        }
-      } catch (error) {
-        console.error("Error fetching rating chart data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Get last 7 days range
+    const today = new Date();
+    const fromDate = new Date();
+    fromDate.setDate(today.getDate() - 7);
+
+    // Format to YYYY-MM-DD
+    const from = fromDate.toISOString().split("T")[0];
+    const to = today.toISOString().split("T")[0];
+
+    // Fetch data with date range
+    const ratingData: any = await getRequest(`/video/ratings/graph?from=${from}&to=${to}`, setLoading);
+
+    if (isMounted && ratingData && Object.keys(ratingData).length > 0) {
+      const labels = Object.keys(ratingData);
+      const datasets = [
+        {
+          label: "Average Rating",
+          data: labels.map((date: string) => ratingData[date]?.averageRating || 0),
+          borderColor: getRandomColor(),
+          backgroundColor: getRandomColor(),
+          lineTension: 0.4,
+        },
+        {
+          label: "Total Ratings",
+          data: labels.map((date: string) => ratingData[date]?.totalRatings || 0),
+          borderColor: getRandomColor(),
+          backgroundColor: getRandomColor(),
+          lineTension: 0.4,
+        },
+      ];
+
+      setRatingChartData({ labels, datasets });
+    }
+  } catch (error) {
+    console.error("Error fetching rating chart data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
     const fetchScripts = async () => {
       const result: any = await getRequest("video/author/scripts", setLoading);
@@ -171,41 +223,31 @@ const Homepage: React.FC = () => {
     return color;
   };
 
-  const chartOptions: ChartOptions<"line"> = {
+  const chartTitles = ["Genres Popularity Over Time", "Themes Popularity Over Time", "Ratings Over Time"];
+
+  const chartOptions = (title: string): ChartOptions<"line"> => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "top", // Use valid literal type
+        position: "top",
         labels: {
           color: "white",
-          font: {
-            size: 8,
-          },
+          font: { size: 8 },
           usePointStyle: true,
         },
       },
       title: {
-        display: true,
-        text: "Rise and Fall of Different Genres/Themes/Ratings Over Time",
+        display: true,  // Only this title will be used
+        text: title,    // Dynamic title
         color: "white",
-        font: {
-          size: 12,
-          weight: "bold", // Valid type for weight
-        },
-        padding: {
-          top: 1,
-          bottom: 10,
-        },
+        font: { size: 12, weight: "bold" },
+        padding: { top: 1, bottom: 10 },
       },
       tooltip: {
         enabled: true,
-        bodyFont: {
-          size: 10,
-        },
-        titleFont: {
-          size: 10,
-        },
+        bodyFont: { size: 10 },
+        titleFont: { size: 10 },
         padding: 8,
       },
     },
@@ -215,16 +257,9 @@ const Homepage: React.FC = () => {
           display: true,
           text: "Popularity Metric (Views/Uploads)",
           color: "white",
-          font: {
-            size: 10,
-          },
+          font: { size: 10 },
         },
-        ticks: {
-          color: "white",
-          font: {
-            size: 9,
-          },
-        },
+        ticks: { color: "white", font: { size: 9 } },
       },
       x: {
         reverse: true,
@@ -232,32 +267,17 @@ const Homepage: React.FC = () => {
           display: true,
           text: "Time (Weeks)",
           color: "white",
-          font: {
-            size: 10,
-          },
-          padding: {
-            bottom: 20,
-          },
+          font: { size: 10 },
+          padding: { bottom: 20 },
         },
-        ticks: {
-          color: "white",
-          font: {
-            size: 10,
-          },
-        },
+        ticks: { color: "white", font: { size: 10 } },
       },
     },
     elements: {
-      line: {
-        tension: 0.4,
-        borderWidth: 1,
-      },
-      point: {
-        radius: 3,
-        hoverRadius: 3,
-      },
+      line: { tension: 0.4, borderWidth: 1 },
+      point: { radius: 3, hoverRadius: 3 },
     },
-  };
+  });
   const handleScriptMouseEnter = (index: number) => {
     setShowMoreIndex(index);
   };
@@ -268,11 +288,9 @@ const Homepage: React.FC = () => {
 
   return (
     <Layout expand={false}>
-   <div className="textured-background">
+  <div className="textured-background">
       <h1 className="chart-heading">WECINEMA</h1>
-      <p className="chart-subheading">
-        Genre, Theme, and Rating Popularity Over Time
-      </p>
+      <p className="chart-subheading">Genre, Theme, and Rating Popularity Over Time</p>
 
       {window.innerWidth < 768 ? (
         <div className="relative">
@@ -281,67 +299,32 @@ const Homepage: React.FC = () => {
           <div className="swiper-button-next custom-next">→</div>
 
           <Swiper
-            modules={[Pagination,Navigation]} // Include Navigation
+            modules={[Pagination, Navigation]}
             pagination={{ clickable: true }}
-            navigation={{
-              prevEl: ".custom-prev",
-              nextEl: ".custom-next",
-            }} // Connect buttons
+            navigation={{ prevEl: ".custom-prev", nextEl: ".custom-next" }}
             spaceBetween={16}
             slidesPerView={1}
             className="mobile-swiper"
           >
-            {[genreChartData, themeChartData, ratingChartData].map(
-              (chartData, idx) => (
-                <SwiperSlide key={idx} className="swiper-slide">
-                  <div className="chart-container">
-                    {!loading && chartData && (
-                      <Line data={chartData} options={chartOptions} />
-                    )}
-                  </div>
-                </SwiperSlide>
-              )
-            )}
+            {[genreChartData, themeChartData, ratingChartData].map((chartData, idx) => (
+              <SwiperSlide key={idx} className="swiper-slide">
+                <div className="chart-container">
+                  {!loading && chartData && <Line data={chartData} options={chartOptions(chartTitles[idx])} />}
+                </div>
+              </SwiperSlide>
+            ))}
           </Swiper>
         </div>
       ) : (
-        <div
-          className={`chart-wrapper ${
-            window.innerWidth >= 1024 ? "chart-wrapper-lg" : ""
-          }`}
-        >
-          {[genreChartData, themeChartData, ratingChartData].map(
-            (chartData, idx) => (
-              <div key={idx} className="chart-container">
-                {!loading && chartData && (
-                  <Line data={chartData} options={chartOptions} />
-                )}
-              </div>
-            )
-          )}
+        <div className={`chart-wrapper ${window.innerWidth >= 1024 ? "chart-wrapper-lg" : ""}`}>
+          {[genreChartData, themeChartData, ratingChartData].map((chartData, idx) => (
+            <div key={idx} className="chart-container">
+              {!loading && chartData && <Line data={chartData} options={chartOptions(chartTitles[idx])} />}
+            </div>
+          ))}
         </div>
-        
       )}
-    <div 
-  className="fixed bottom-3 right-2 bg-yellow-500 text-white p-1 rounded-full shadow-lg hover:bg-yellow-600 cursor-pointer z-50"
-  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={2}
-    stroke="currentColor"
-    className="w-6 h-6"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M5 15l7-7 7 7"
-    />
-  </svg>
-</div>
-
+   
 
     </div>
 

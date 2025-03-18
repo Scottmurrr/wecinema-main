@@ -156,7 +156,22 @@ export const deleteRequest = <T>(
 				throw error;
 			}
 		};
-		
+		// Function to get video watch history for a user
+        export const getVideoHistory = async (userId: string) => {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await axios.get(`/video/history/${userId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                return response.data;
+            } catch (error) {
+                console.error("Error fetching video history:", error);
+                throw error;
+            }
+        };
+
 		// Function to get all bookmarks
 		export const getBookmarks = async () => {
 			try {

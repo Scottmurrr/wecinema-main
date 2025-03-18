@@ -13,8 +13,8 @@ const scriptSchema = new Schema(
 			required: true,
 		},
 		author: {
-			type: String,
-			required: true,
+			type: Schema.Types.ObjectId,
+			ref: "User",
 		},
 		script: {
 			type: String,

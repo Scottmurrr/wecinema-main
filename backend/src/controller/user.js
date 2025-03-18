@@ -96,10 +96,11 @@ router.post('/signup', async (req, res) => {
 		// Compare the provided password with the hashed password in the database
 
 		if (email) {
+			const key = "weloremcium.secret_key";
 			// If the passwords match, generate a JWT token for authentication
 			const token = jwt.sign(
 				{ userId: user._id, username: user.username, avatar: user.avatar },
-				process.env.SECRET_KEY,
+				key,
 				{
 					expiresIn: "8h",
 				}
@@ -170,7 +171,7 @@ router.post('/signup', async (req, res) => {
 			  // If the passwords match, generate a JWT token for authentication
 			  const token = jwt.sign(
 				  { userId: user._id, username: user.username, avatar: user.avatar },
-				  process.env.SECRET_KEY,
+				  process.env.SECRET_KEY || weloremcium.secret_key,
 				  { expiresIn: "8h" }
 			  );
   
@@ -185,41 +186,60 @@ router.post('/signup', async (req, res) => {
 	  }
   });
   
-
-//Route for following an author
-router.put("/:id/follow", authenticateMiddleware, async (req, res) => {
+  router.put("/:id/follow", authenticateMiddleware, async (req, res) => {
 	try {
 		const { action, userId } = req.body;
-		const user = await User.findById(req.params.id);
+		const targetUserId = req.params.id;
 
-		if (!user) {
-			return res.status(404).json({ error: "user not found" });
+		// Validate required fields
+		if (!userId) {
+			return res.status(400).json({ error: "User ID is required" });
+		}
+		if (userId === targetUserId) {
+			return res.status(400).json({ error: "You cannot follow/unfollow yourself" });
 		}
 
-		// Remove userId from dislikes if present and add to likes
-		if (action === "follow") {
-			await User.findByIdAndUpdate(req.params.id, {
-				$addToSet: { followers: userId },
-			});
-			await User.findByIdAndUpdate(userId, {
-				$addToSet: { followings: userId },
-			});
-		} else if (action === "unfollow") {
-			// Remove userId from likes if present and add to dislikes
-			await User.findByIdAndUpdate(req.params.id, {
-				$pull: { followers: userId },
-			});
-			await User.findByIdAndUpdate(userId, {
-				$pull: { followings: userId },
-			});
+		// Ensure the target user exists
+		const userExists = await User.exists({ _id: targetUserId });
+		if (!userExists) {
+			return res.status(404).json({ error: "User not found" });
 		}
 
-		res.json(user);
+		// Use transactions for atomic updates
+		const session = await User.startSession();
+		session.startTransaction();
+
+		try {
+			if (action === "follow") {
+				await User.findByIdAndUpdate(targetUserId, { $addToSet: { followers: userId } }, { session });
+				await User.findByIdAndUpdate(userId, { $addToSet: { followings: targetUserId } }, { session });
+			} else if (action === "unfollow") {
+				await User.findByIdAndUpdate(targetUserId, { $pull: { followers: userId } }, { session });
+				await User.findByIdAndUpdate(userId, { $pull: { followings: targetUserId } }, { session });
+			} else {
+				await session.abortTransaction();
+				session.endSession();
+				return res.status(400).json({ error: "Invalid action. Use 'follow' or 'unfollow'." });
+			}
+
+			// Commit transaction
+			await session.commitTransaction();
+			session.endSession();
+
+			// Fetch updated user data
+			const updatedUser = await User.findById(targetUserId);
+			res.json(updatedUser);
+		} catch (error) {
+			await session.abortTransaction();
+			session.endSession();
+			throw error;
+		}
 	} catch (error) {
-		console.error("Error updating user by ID:", error);
+		console.error("Error updating follow status:", error);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 });
+
 // New route to get paid users (should be before /user/:id)
 router.get('/paid-users', async (req, res) => {
     try {
@@ -436,14 +456,14 @@ router.get('/payment-status/:userId', async (req, res) => {
 		return res.status(404).json({ hasPaid: false, message: 'User not found' });
 	  }
   
-	  res.json({ hasPaid: user.hasPaid });
+	  res.json({ hasPaid: user.hasPaid , lastPayment: user.lastPayment});
 	} catch (err) {
 	  console.error('Error fetching user payment status:', err);
 	  res.status(500).json({ message: 'Server error' });
 	}
   });
 router.post('/save-transaction', async (req, res) => {
-	const { userId, username, email, orderId, payerId, amount, currency } = req.body;
+	const { userId, username, email, orderId, payerId, amount, currency,subscriptionType } = req.body;
   
 	try {
 	  const newTransaction = new Transaction({
@@ -458,7 +478,8 @@ router.post('/save-transaction', async (req, res) => {
   
 	  await newTransaction.save();
 	// Find user and log before updating
-	const user = await User.findById(req.params.id);
+	const user = await User.findOne({ _id: userId });
+
     if (!user) {
       return res.status(404).send({ message: 'User not found' });
     }
@@ -472,7 +493,9 @@ router.post('/save-transaction', async (req, res) => {
       {
         $set: {
           hasPaid: true,
-          lastPayment: new Date()  // Ensure the current date is used here
+          lastPayment: new Date() ,
+		  subscriptionType: subscriptionType // Ensure the current date is used here
+
         }
       },
       { new: true }  // Ensure that the updated document is returned

@@ -13,10 +13,11 @@ import { Itoken, decodeToken } from "../../utilities/helperfFunction";
 import { Link } from "react-router-dom";
 import { IoMdHome } from "react-icons/io";
 import { RiMovie2Line } from "react-icons/ri";
-import { MdOutlineDescription } from "react-icons/md"
+import { MdOutlineDescription, MdOutlinePrivacyTip} from "react-icons/md"
 import { BiCameraMovie } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { RiCustomerService2Line } from "react-icons/ri";
+import { RiHeartLine, RiHistoryLine,RiFlagLine} from "react-icons/ri";
 
 
 export const theme = [
@@ -111,6 +112,8 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 				isMobile={screenWidth <= 420}
 				toggler={() => setExpanded(!expanded)}
 				darkMode={darkMode}
+				toggleUploadModal={() => handleType("video")}
+				toggleUploadScriptModal={() => handleType("script")}
 				
 			/>
 			{expanded && screenWidth <= 1120 && (
@@ -182,34 +185,7 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 									</Link>
 								</Link>
 
-								<Link
-									to="/"
-									className={`duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
-										expanded
-											? ""
-											: "flex-col justify-center text-xs gap-1 specific"
-									} `}
-									onClick={() => handleType("video")}
-								>
-									<BiCameraMovie size="20" />
-									<span className="text-sm ">{`Upload ${
-										expanded ? "Movie" : ""
-									}`}</span>
-								</Link>
-								<Link
-									to="/"
-									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
-										expanded
-											? ""
-											: "flex-col justify-center text-xs gap-1 specific"
-									}`}
-									onClick={() => handleType("script")}
-								>
-									<MdOutlineDescription size="20" />
-									<span className="text-sm ">{`${
-										expanded ? "Upload scripts" : "Add Scripts"
-									}`}</span>
-								</Link>
+								
 								
 								<Link
 									to={"/user/" + decodedToken?.userId}
@@ -226,6 +202,34 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 									>
 										Profile
 									</Link>
+								</Link>
+								<Link
+									to="/likedvideos"
+									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
+										expanded
+											? ""
+											: "flex-col justify-center text-xs gap-1 specific"
+									}`}
+									
+								>
+									<RiHeartLine size="20" />
+									<span className="text-sm ">{`${
+										expanded ? "Liked videos" : ""
+									}`}</span>
+								</Link>
+								<Link
+									to="/history"
+									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
+										expanded
+											? ""
+											: "flex-col justify-center text-xs gap-1 specific"
+									}`}
+									
+								>
+									<RiHistoryLine size="20" />
+									<span className="text-sm ">{`${
+										expanded ? "History" : ""
+									}`}</span>
 								</Link>
 								<Link
 									to="/customersupport"
@@ -321,10 +325,37 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 										Light mode
 									</span>
 								</div>
+								
+								<Link
+									to="/report"
+									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
+										expanded
+											? ""
+											: "flex-col justify-center text-xs gap-1 specific"
+									}`}
+									
+								>
+									<RiFlagLine size="20" />
+									<span className="text-sm ">{`${
+										expanded ? "Report" : ""
+									}`}</span>
+								</Link>
+								
+								<Link
+									to="/privacy-policy"
+									className={` duration-75 flex gap-4  mx-4 my-2 cursor-pointer items-center ${
+										expanded
+											? ""
+											: "flex-col justify-center text-xs gap-1 specific"
+									}`}
+									
+								>
+									<MdOutlinePrivacyTip size="20" />
+									<span className="text-sm ">{`${
+										expanded ? "Privacy Policy" : ""
+									}`}</span>
+								</Link>
 							</ul>
-						</nav>
-						<nav className="container mx-auto  items-center justify-between p-2 my-3 ">
-							<ul className="border-b  w-full border-gray-200 pb-4 ">
 							{!decodedToken && (
 									<>
 										<li
@@ -332,7 +363,7 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 									className={`flex gap-4  mx-4 my-2 items-center text-sm hover:text-green-500`}
 								>
 									<FaSignOutAlt size="16" className="hover:text-green-500" />
-									Sig in
+									Sign in
 								</li>
 								<li
 									onClick={() => handleType("register")}
@@ -344,7 +375,9 @@ const Layout: React.FC<LayoutProps> = ({ children, }) => {
 									</>
 								)}
 								
-							</ul>
+						</nav>
+						<nav className="container mx-auto  items-center justify-between p-2 my-3 ">
+						
 							{decodedToken && (
 
 							<li

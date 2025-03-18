@@ -64,6 +64,8 @@ export const formatDateAgo = (dateTime: string): string => {
 export const isUserIdInArray = (userId: MongooseId, idArray: MongooseId[]): boolean =>
   idArray.includes(userId);
 
+
+
 // Capitalize the first letter of a string
 export const capitalizeFirstLetter = (str: string): string =>
   str.charAt(0).toUpperCase() + str.slice(1);
